@@ -1,1 +1,1 @@
-# music_synthesizer
+# Musical Analysis by Synthesis
