@@ -4,6 +4,8 @@
 import numpy as np
 import random
 import librosa
+import data
+
 
 class karplus_strong:
     def __init__(self, pitch, sampling_freq, stretch_factor, flag):
@@ -17,6 +19,7 @@ class karplus_strong:
         self.current_sample = 0
         self.previous_value = 0
 
+
     def init_wavetable(self):
         """Generates a new wavetable for the string."""
         wavetable_size = int(self.sampling_freq) // int(self.pitch)
@@ -25,6 +28,7 @@ class karplus_strong:
         else:
             self.wavetable = (2 * np.random.randint(0, 2, wavetable_size) - 1).astype(np.float)
         return self.wavetable
+
 
     def get_samples(self):
         """Returns samples from string."""
@@ -46,16 +50,15 @@ class karplus_strong:
             self.current_sample = self.current_sample % self.wavetable.size
         return np.array(samples)
 
+
 def main():
-    fs = random.randint(5, 10) * 1000
-    freq = random.randint(20, 2000)
-    stretch_factor = random.randint(1, 10)
-    print(fs)
-    print(freq)
-    print(stretch_factor)
-    string = karplus_strong(freq, 2 * fs, stretch_factor, 1)
+    data.create_datasets()
+    train_data, test_data, eval_data = data.read_dataset()
+    pitch, sampling_freq, stretch_factor, flag = eval_data['parameters'][:,0]
+    string = karplus_strong(pitch, 2 * sampling_freq, stretch_factor, 1)
     sample = string.get_samples()
-    librosa.output.write_wav('karplus_strong_output.wav', sample, fs)
+    librosa.output.write_wav('karplus_strong_output.wav', sample, int(sampling_freq))
+  
     
 if __name__ == "__main__":
     main()
