@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
-
+import sys
+sys.path.insert(0, '../data')
 import numpy as np
 import random
 import librosa
+import matplotlib.pyplot as plt
 import data
+import cqt_transform
 
 
 class karplus_strong:
@@ -51,16 +54,18 @@ class karplus_strong:
         return np.array(samples)
 
 
-def main():
-    data.create_datasets()
-    train_data, test_data, eval_data = data.read_dataset()
-    pitch, sampling_freq, stretch_factor, flag = eval_data['parameters'][:,0]
-    string = karplus_strong(pitch, 2 * sampling_freq, stretch_factor, 1)
-    sample = string.get_samples()
-    librosa.output.write_wav('karplus_strong_output.wav', sample, int(sampling_freq))
+#def main():
+#    data.create_datasets()
+#    train_data, test_data, eval_data = data.read_dataset()
+#    pitch, sampling_freq, stretch_factor, flag = eval_data['parameters'][:,0]
+#    string = karplus_strong(pitch, 2 * sampling_freq, stretch_factor, 1)
+#    sample = string.get_samples()
+#    cqt = cqt_transform.cqt_spec(sample, hop_length=64)
+#    plt.imshow(cqt)
+ #   librosa.output.write_wav('karplus_strong_output.wav', sample, int(sampling_freq))
   
     
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
 
 
