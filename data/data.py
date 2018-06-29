@@ -27,7 +27,7 @@ def sample_params(size):
     strings = []
     cqt_specs = []
     for i in range(size):
-        strings.append(karplus_strong(pitch[i], 2 * sampling_freq[i], stretch_factor[i], 1))
+        strings.append(karplus_strong.my_karplus_strong(pitch[i], 2 * sampling_freq[i], stretch_factor[i], 1))
         samples.append(strings[i].get_samples())
         cqt_spec = cqt_transform.compute_cqt_spec(samples[i]).T
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))
