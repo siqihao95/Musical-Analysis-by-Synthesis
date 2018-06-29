@@ -5,7 +5,7 @@ sys.path.insert(0, '../data')
 import numpy as np
 
 
-class karplus_strong:
+class my_karplus_strong:
     def __init__(self, pitch, sampling_freq, stretch_factor, flag):
         """Inits the string."""
         self.pitch = pitch
