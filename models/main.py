@@ -31,7 +31,8 @@ class MyDataset(torch.utils.data.Dataset):
     
     
 def load_data():
-    data.create_datasets()
+    #data.create_datasets()
+    data.generate_data('val.pkl', 5000)
     train_data, test_data, val_data, eval_data = data.read_dataset()
     return train_data, test_data, val_data, eval_data
    
@@ -48,7 +49,7 @@ def evaluate(net, validation_loader):
 
         # print statistics
         val_loss += loss.item()
-    return val_loss/5000
+    return val_loss/float(len(validation_loader.dataset))
 
     
 def train_model(train_data, test_data, val_data, eval_data):
@@ -69,7 +70,7 @@ def train_model(train_data, test_data, val_data, eval_data):
     testloader = torch.utils.data.DataLoader(testset, batch_size=32,
                                              shuffle=False, num_workers=2)
     
-    valset = MyDataset(parameters=val_data['parameters'], cqt_spectrograms=test_data['cqt_spec'])
+    valset = MyDataset(parameters=val_data['parameters'], cqt_spectrograms=val_data['cqt_spec'])
     valloader = torch.utils.data.DataLoader(valset, batch_size=32,
                                             shuffle=False, num_workers=2)
     
@@ -77,7 +78,7 @@ def train_model(train_data, test_data, val_data, eval_data):
     evalloader = torch.utils.data.DataLoader(evalset, batch_size=4,
                                              shuffle=False, num_workers=2)
         
-    for epoch in range(100):  # loop over the dataset multiple times
+    for epoch in range(200):  # loop over the dataset multiple times
 
         running_loss = 0.0
         for i, datapoints in enumerate(trainloader, 0):
@@ -96,14 +97,14 @@ def train_model(train_data, test_data, val_data, eval_data):
             
             # print statistics
             running_loss += loss.item()
-            if i % 500 == 0:    # print every 20 mini-batches
-                print('[%d, %5d] loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss/500))
-                running_loss = 0.0
+#            if i % 500 == 0:    # print every 20 mini-batches
+#                print('[%d, %5d] loss: %.3f' %
+#                      (epoch + 1, i + 1, running_loss/500))
+#                running_loss = 0.0
                 
-        print('epoch %d train_loss: %.3f' % (epoch + 1, running_loss/50000))
+        print('epoch %d train_loss: %.3f' % (epoch + 1, running_loss/float(len(trainloader.dataset))))
         with open("train_losses.txt", "a") as text_file:
-            text_file.write(str(running_loss/50000))
+            text_file.write(str(running_loss/float(len(trainloader.dataset))))
             text_file.write("\n")
     
         val_loss = evaluate(net, valloader)
@@ -116,5 +117,5 @@ def train_model(train_data, test_data, val_data, eval_data):
   
     
 if __name__ == "__main__":
-    train_data, test_data, eval_data = load_data()
-    train_model(train_data, test_data, eval_data)
+    train_data, test_data, val_data, eval_data = load_data()
+    train_model(train_data, test_data, val_data, eval_data)
