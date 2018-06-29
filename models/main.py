@@ -83,10 +83,10 @@ def train_model(train_data, test_data, val_data, eval_data):
         running_loss = 0.0
         for i, datapoints in enumerate(trainloader, 0):
             # get the inputs
-            inputs, labels = datapoints
+            inputs, labels = datapoints.cuda()
             inputs.unsqueeze_(1)
-            inputs = inputs.cuda()
-            labels = labels.cuda()
+            #inputs = inputs.cuda()
+            #labels = labels.cuda()
             # zero the parameter gradients
             optimizer.zero_grad()
             
