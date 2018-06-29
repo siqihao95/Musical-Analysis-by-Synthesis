@@ -43,5 +43,10 @@ if __name__ == '__main__':
 
     guitar = Guitar(options=args)
     audio_buffer = sequencer.play_guitar(guitar)
-    cqt = cqt_transform.compute_cqt_spec(audio_buffer, sr=40000, hop_length=256)
+    cqt = librosa.cqt(audio_buffer, sr=40000, n_bins=84*4, bins_per_octave=12*4, hop_length=256, filter_scale=0.8)
+    inverse_cqt = librosa.icqt(cqt, sr=40000, bins_per_octave=12*4, hop_length=256, filter_scale=0.8)
+    print('CQT size: {}'.format(cqt.shape))
+    # plt.imshow(cqt)
+    # plt.show()
     librosa.output.write_wav('guitar_output.wav', audio_buffer, 40000)  # The 40000 is the sampling frequency
+    librosa.output.write_wav('guitar_output_reconstructed.wav', inverse_cqt, 40000)  # The 40000 is the sampling frequency
