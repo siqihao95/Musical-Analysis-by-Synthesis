@@ -45,6 +45,7 @@ def evaluate(net, validation_loader, criterion):
         inputs, labels = datapoints
         inputs.unsqueeze_(1)
         inputs = inputs.to(device)
+        labels = labels.to(device)
     
         outputs = net(inputs)
         loss = criterion(outputs, labels)
