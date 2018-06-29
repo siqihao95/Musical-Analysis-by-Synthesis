@@ -15,6 +15,7 @@ import torch.optim as optim
 import data
 import cnn
 
+device = 'cuda'
 
 class MyDataset(torch.utils.data.Dataset):
     def __init__(self, parameters, cqt_spectrograms):
@@ -53,7 +54,7 @@ def evaluate(net, validation_loader, criterion):
 
     
 def train_model(train_data, test_data, val_data, eval_data):
-    net = cnn.Net().double().cuda()
+    net = cnn.Net().double().to(device)
     criterion = nn.MSELoss()
     optimizer = optim.SGD(net.parameters(), lr=0.0001, momentum=0.9)
     
@@ -83,10 +84,10 @@ def train_model(train_data, test_data, val_data, eval_data):
         running_loss = 0.0
         for i, datapoints in enumerate(trainloader, 0):
             # get the inputs
-            inputs, labels = datapoints.cuda()
+            inputs, labels = datapoints
             inputs.unsqueeze_(1)
-            #inputs = inputs.cuda()
-            #labels = labels.cuda()
+            inputs = inputs.to(device)
+            labels = labels.to(device)
             # zero the parameter gradients
             optimizer.zero_grad()
             
