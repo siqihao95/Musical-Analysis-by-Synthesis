@@ -56,8 +56,9 @@ def read_data(file):
 def create_datasets():
     generate_data('eval.pkl', 100)
     generate_data('test.pkl', 5000)
+    generate_data('eval.pkl', 5000)
     generate_data('train.pkl', 50000)
 
     
 def read_dataset():
-    return read_data('train.pkl'), read_data('test.pkl'), read_data('eval.pkl')
+    return read_data('train.pkl'), read_data('test.pkl'), read_data('val.pkl'), read_data('eval.pkl')
