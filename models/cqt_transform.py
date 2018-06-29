@@ -23,6 +23,6 @@ def cqt_specgram(audio, n_bins, bins_per_octave, hop_length, sr, fmin, filter_sc
     return c_p
 
 
-def compute_cqt_spec(audio, n_bins = 84*4, bins_per_octave=12*4, hop_length = 256, sr = 16000, fmin = librosa.note_to_hz('C1'),
+def compute_cqt_spec(audio, n_bins = 70, bins_per_octave=10, hop_length = 512, sr = 16000, fmin = librosa.note_to_hz('C1'),
              filter_scale = 0.8):
     return cqt_specgram(audio, n_bins, bins_per_octave, hop_length, sr, fmin, filter_scale)
