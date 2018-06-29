@@ -119,5 +119,6 @@ def train_model(train_data, test_data, val_data, eval_data):
   
     
 if __name__ == "__main__":
+    pytorch.set_default_tensor_type('torch.DoubleTensor')
     train_data, test_data, val_data, eval_data = load_data()
     train_model(train_data, test_data, val_data, eval_data)
