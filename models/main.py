@@ -32,11 +32,26 @@ class MyDataset(torch.utils.data.Dataset):
     
 def load_data():
     #data.create_datasets()
-    train_data, test_data, eval_data = data.read_dataset()
-    return train_data, test_data, eval_data
+    train_data, test_data, val_data, eval_data = data.read_dataset()
+    return train_data, test_data, val_data, eval_data
+   
+
+def evaluate(net, validation_loader):
+    val_loss = 0.0
+    for i, datapoints in enumerate(validation_loader, 0):
+
+        inputs, labels = datapoints
+        inputs.unsqueeze_(1)
     
+        outputs = net(inputs)
+        loss = cnn.criterion(outputs, labels)
+
+        # print statistics
+        val_loss += loss.item()
+    return val_loss/5000
+
     
-def train_model(train_data, test_data, eval_data):
+def train_model(train_data, test_data, val_data, eval_data):
     net = cnn.Net().double()
     criterion = nn.MSELoss()
     optimizer = optim.SGD(net.parameters(), lr=0.0001, momentum=0.9)
@@ -53,6 +68,10 @@ def train_model(train_data, test_data, eval_data):
     testset = MyDataset(parameters=test_data['parameters'], cqt_spectrograms=test_data['cqt_spec'])
     testloader = torch.utils.data.DataLoader(testset, batch_size=32,
                                              shuffle=False, num_workers=2)
+    
+    valset = MyDataset(parameters=val_data['parameters'], cqt_spectrograms=test_data['cqt_spec'])
+    valloader = torch.utils.data.DataLoader(valset, batch_size=32,
+                                            shuffle=False, num_workers=2)
     
     evalset = MyDataset(parameters=eval_data['parameters'], cqt_spectrograms=eval_data['cqt_spec'])
     evalloader = torch.utils.data.DataLoader(evalset, batch_size=4,
@@ -72,22 +91,25 @@ def train_model(train_data, test_data, eval_data):
             outputs = net(inputs)
             loss = criterion(outputs, labels)
             loss.backward()
-#            print("gradients:\n")
-#            for param in net.parameters():
-#                  print(param.grad)
-#            print("outputs:\n")
-#            print(outputs)
+
             optimizer.step()
             
             # print statistics
             running_loss += loss.item()
-            if i % 200 == 1:    # print every 200 mini-batches
+            if i % 500 == 0:    # print every 20 mini-batches
                 print('[%d, %5d] loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss))
+                      (epoch + 1, i + 1, running_loss/500))
                 running_loss = 0.0
-        print('epoch %d loss: %.3f' % (epoch + 1, running_loss))
-        with open("losses.txt", "a") as text_file:
-            text_file.write(str("%.3f" % running_loss))
+                
+        print('epoch %d train_loss: %.3f' % (epoch + 1, running_loss/50000))
+        with open("train_losses.txt", "a") as text_file:
+            text_file.write(str(running_loss/50000))
+            text_file.write("\n")
+    
+        val_loss = evaluate(net, valloader)
+        print('epoch %d val_loss: %.3f' % (epoch + 1, val_loss))
+        with open("val_losses.txt", "a") as text_file:
+            text_file.write(str(val_loss))
             text_file.write("\n")
             
     print('Finished Training')

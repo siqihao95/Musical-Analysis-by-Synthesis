@@ -3,11 +3,6 @@
 import sys
 sys.path.insert(0, '../data')
 import numpy as np
-import random
-import librosa
-import matplotlib.pyplot as plt
-import data
-import cqt_transform
 
 
 class karplus_strong:
