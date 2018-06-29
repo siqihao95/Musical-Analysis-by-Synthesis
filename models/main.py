@@ -31,7 +31,7 @@ class MyDataset(torch.utils.data.Dataset):
     
     
 def load_data():
-    #data.create_datasets()
+    data.create_datasets()
     train_data, test_data, val_data, eval_data = data.read_dataset()
     return train_data, test_data, val_data, eval_data
    
