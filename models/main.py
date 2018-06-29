@@ -53,7 +53,7 @@ def evaluate(net, validation_loader, criterion):
 
     
 def train_model(train_data, test_data, val_data, eval_data):
-    net = cnn.Net().double()
+    net = cnn.Net().double().cuda()
     criterion = nn.MSELoss()
     optimizer = optim.SGD(net.parameters(), lr=0.0001, momentum=0.9)
     
@@ -85,6 +85,8 @@ def train_model(train_data, test_data, val_data, eval_data):
             # get the inputs
             inputs, labels = datapoints
             inputs.unsqueeze_(1)
+            inputs = inputs.cuda()
+            labels = labels.cuda()
             # zero the parameter gradients
             optimizer.zero_grad()
             
