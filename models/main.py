@@ -32,12 +32,12 @@ class MyDataset(torch.utils.data.Dataset):
     
 def load_data():
     #data.create_datasets()
-    data.generate_data('val.pkl', 5000)
+    #data.generate_data('val.pkl', 5000)
     train_data, test_data, val_data, eval_data = data.read_dataset()
     return train_data, test_data, val_data, eval_data
    
 
-def evaluate(net, validation_loader):
+def evaluate(net, validation_loader, criterion):
     val_loss = 0.0
     for i, datapoints in enumerate(validation_loader, 0):
 
@@ -45,7 +45,7 @@ def evaluate(net, validation_loader):
         inputs.unsqueeze_(1)
     
         outputs = net(inputs)
-        loss = cnn.criterion(outputs, labels)
+        loss = criterion(outputs, labels)
 
         # print statistics
         val_loss += loss.item()
@@ -107,7 +107,7 @@ def train_model(train_data, test_data, val_data, eval_data):
             text_file.write(str(running_loss/float(len(trainloader.dataset))))
             text_file.write("\n")
     
-        val_loss = evaluate(net, valloader)
+        val_loss = evaluate(net, valloader, criterion)
         print('epoch %d val_loss: %.3f' % (epoch + 1, val_loss))
         with open("val_losses.txt", "a") as text_file:
             text_file.write(str(val_loss))
