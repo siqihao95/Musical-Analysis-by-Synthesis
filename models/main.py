@@ -9,8 +9,7 @@ Created on Thu Jun 28 20:55:00 2018
 import sys
 sys.path.insert(0, '../data')
 import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
-%matplotlib inline
+#import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -86,7 +85,7 @@ def train_model(net, train_data, val_data, eval_data):
     evalloader = torch.utils.data.DataLoader(evalset, batch_size=4,
                                              shuffle=False, num_workers=2)
         
-    for epoch in range(500):  # loop over the dataset multiple times
+    for epoch in range(20):  # loop over the dataset multiple times
 
         running_loss = 0.0
         for i, datapoints in enumerate(trainloader, 0):
@@ -156,7 +155,7 @@ def test(net, test_data):
     gt_sampling_freqs = []
 
     for i in range(len(targets)):
-        gt_pitch, gt_sampling_freq, gt_stretch_factor, gt_flag = targets.numpy()[i]
+        gt_pitch, gt_sampling_freq, gt_stretch_factor, gt_flag = targets.cpu().numpy()[i]
         # print('GT: pitch: {} | sampling_freq: {} | stretch_factor: {} | flag: {}'.format(
         #       gt_pitch, gt_sampling_freq, gt_stretch_factor, gt_flag))
         string = karplus_storng.my_karplus_strong(gt_pitch, 2 * gt_sampling_freq, gt_stretch_factor, 1)
@@ -168,12 +167,12 @@ def test(net, test_data):
         gt_sampling_freqs.append(gt_sampling_freq)
         
     with open("gt_data.pkl", 'wb') as fh:
-        data_dict = {'gt_samples' : np.array(gt_samples), 'gt_sampling_freqs' : gt_sampling_freqs, 'gt_cqts' : inputs.numpy()}
+        data_dict = {'gt_samples' : np.array(gt_samples), 'gt_sampling_freqs' : gt_sampling_freqs, 'gt_cqts' : inputs.cpu().numpy()}
         pkl.dump(data_dict, fh)
     fh.close()
  
     preds = net(inputs.unsqueeze(1))
-    preds = preds.detach().numpy()
+    preds = preds.detach().cpu().numpy()
 
     pred_sampling_freqs = []
     pred_samples = []
@@ -210,9 +209,9 @@ def plot_curves():
     for line in logfile:
         val_losses.append(float(line))
     t = np.linspace(0, len(val_losses[10:]), len(val_losses[10:]))
-    plt.plot(t, np.array(train_losses[10:]), 'r')
-    plt.plot(t, np.array(val_losses[10:]), 'b')
-    plt.show()
+ #   plt.plot(t, np.array(train_losses[10:]), 'r')
+ #   plt.plot(t, np.array(val_losses[10:]), 'b')
+ #   plt.show()
 
     
 def plot_cqts():
@@ -226,8 +225,8 @@ def plot_cqts():
     fh.close()
     pred_cqts = pred_data['pred_cqts']
     
-    plt.figure(figsize=(16,12))
-    plt.imshow(merge_images(gt_cqts[:16], pred_cqts[:16])
+#    plt.figure(figsize=(16,12))
+#    plt.imshow(merge_images(gt_cqts[:16], pred_cqts[:16]))
         
         
 if __name__ == "__main__":
@@ -235,4 +234,5 @@ if __name__ == "__main__":
     train_data, test_data, val_data, eval_data = load_data()
     train_model(net, train_data, val_data, eval_data)
     test(net, test_data)
+    #plot_curves()
     #plot_cqts()
