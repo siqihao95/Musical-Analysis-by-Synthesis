@@ -38,9 +38,9 @@ class my_karplus_strong:
                 self.wavetable[self.current_sample] = sign * 0.5 * (
                 self.wavetable[self.current_sample] + self.previous_value)
             else:
-		if self.stretch_factor < 0:
-		    d = 0
-		else:
+                if self.stretc_factor < 0:
+                    d = 0
+                else:
                     d = np.random.binomial(1, 1 - 1 / self.stretch_factor)
                 if d == 0:
                     self.wavetable[self.current_sample] = 0.5 * (
