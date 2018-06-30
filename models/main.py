@@ -14,6 +14,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
+import pickle as pkl
 import data
 import cnn
 import karplus_strong
@@ -86,7 +87,7 @@ def train_model(net, train_data, val_data, eval_data):
     evalloader = torch.utils.data.DataLoader(evalset, batch_size=4,
                                              shuffle=False, num_workers=2)
         
-    for epoch in range(2):  # loop over the dataset multiple times
+    for epoch in range(1):  # loop over the dataset multiple times
 
         running_loss = 0.0
         for i, datapoints in enumerate(trainloader, 0):
