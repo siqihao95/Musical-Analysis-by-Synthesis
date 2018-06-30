@@ -13,6 +13,7 @@ import torchvision.transforms as transforms
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import numpy as np
 import data
 import cnn
 import karplus_strong
@@ -64,7 +65,7 @@ def evaluate(net, validation_loader):
     
     
 def train_model(net, train_data, val_data, eval_data):
-    print("==============================Training Data==============================")
+    print("===============Training Data===============")
     criterion = nn.MSELoss()
     optimizer = optim.Adam(net.parameters(), lr=0.001)
     
