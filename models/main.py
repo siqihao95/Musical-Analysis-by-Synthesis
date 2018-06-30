@@ -156,7 +156,7 @@ def test(net, test_data):
     gt_sampling_freqs = []
 
     for i in range(len(targets)):
-        gt_pitch, gt_sampling_freq, gt_stretch_factor, gt_flag = targets.numpy()[i]
+        gt_pitch, gt_sampling_freq, gt_stretch_factor, gt_flag = targets.cpu().numpy()[i]
         # print('GT: pitch: {} | sampling_freq: {} | stretch_factor: {} | flag: {}'.format(
         #       gt_pitch, gt_sampling_freq, gt_stretch_factor, gt_flag))
         string = karplus_storng.my_karplus_strong(gt_pitch, 2 * gt_sampling_freq, gt_stretch_factor, 1)
@@ -168,12 +168,12 @@ def test(net, test_data):
         gt_sampling_freqs.append(gt_sampling_freq)
         
     with open("gt_data.pkl", 'wb') as fh:
-        data_dict = {'gt_samples' : np.array(gt_samples), 'gt_sampling_freqs' : gt_sampling_freqs, 'gt_cqts' : inputs.numpy()}
+        data_dict = {'gt_samples' : np.array(gt_samples), 'gt_sampling_freqs' : gt_sampling_freqs, 'gt_cqts' : inputs.cpu().numpy()}
         pkl.dump(data_dict, fh)
     fh.close()
  
     preds = net(inputs.unsqueeze(1))
-    preds = preds.detach().numpy()
+    preds = preds.detach().cpu().numpy()
 
     pred_sampling_freqs = []
     pred_samples = []
