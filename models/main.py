@@ -87,7 +87,7 @@ def train_model(net, train_data, val_data, eval_data):
     evalloader = torch.utils.data.DataLoader(evalset, batch_size=4,
                                              shuffle=False, num_workers=2)
         
-    for epoch in range(1):  # loop over the dataset multiple times
+    for epoch in range(100):  # loop over the dataset multiple times
 
         running_loss = 0.0
         for i, datapoints in enumerate(trainloader, 0):
