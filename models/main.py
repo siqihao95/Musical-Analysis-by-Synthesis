@@ -85,7 +85,7 @@ def train_model(net, train_data, val_data, eval_data):
     evalloader = torch.utils.data.DataLoader(evalset, batch_size=4,
                                              shuffle=False, num_workers=2)
         
-    for epoch in range(20):  # loop over the dataset multiple times
+    for epoch in range(2):  # loop over the dataset multiple times
 
         running_loss = 0.0
         for i, datapoints in enumerate(trainloader, 0):
@@ -158,7 +158,7 @@ def test(net, test_data):
         gt_pitch, gt_sampling_freq, gt_stretch_factor, gt_flag = targets.cpu().numpy()[i]
         # print('GT: pitch: {} | sampling_freq: {} | stretch_factor: {} | flag: {}'.format(
         #       gt_pitch, gt_sampling_freq, gt_stretch_factor, gt_flag))
-        string = karplus_storng.my_karplus_strong(gt_pitch, 2 * gt_sampling_freq, gt_stretch_factor, 1)
+        string = karplus_strong.my_karplus_strong(gt_pitch, 2 * gt_sampling_freq, gt_stretch_factor, 1)
         sample = string.get_samples()
         cqt_spec = cqt_transform.compute_cqt_spec(sample).T
         padded_cqt = data.pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))
