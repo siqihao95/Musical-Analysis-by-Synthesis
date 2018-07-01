@@ -8,11 +8,11 @@ Created on Thu Jun 28 20:55:00 2018
 
 import sys
 sys.path.insert(0, '../data')
-import torchvision.transforms as transforms
 #import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torchvision.transforms as transforms
 import numpy as np
 import pickle as pkl
 import data
@@ -87,7 +87,7 @@ def train_model(net, train_data, val_data, eval_data):
     evalloader = torch.utils.data.DataLoader(evalset, batch_size=4,
                                              shuffle=False, num_workers=2)
         
-    for epoch in range(100):  # loop over the dataset multiple times
+    for epoch in range(800):  # loop over the dataset multiple times
 
         running_loss = 0.0
         for i, datapoints in enumerate(trainloader, 0):
@@ -125,7 +125,8 @@ def train_model(net, train_data, val_data, eval_data):
         with open("val_losses.txt", "a") as text_file:
             text_file.write(str(val_loss))
             text_file.write("\n")
-            
+
+    torch.save(net.state_dict(), 'checkpoint.pt')
     print('Finished Training')
  
 
@@ -143,6 +144,7 @@ def merge_images(sources, targets, k=10):
 
 
 def test(net, test_data):
+    net.load_state_dict(torch.load('checkpoint.pt'))
     criterion = nn.MSELoss()
 
     testset = MyDataset(parameters=test_data['parameters'], cqt_spectrograms=test_data['cqt_spec'])
