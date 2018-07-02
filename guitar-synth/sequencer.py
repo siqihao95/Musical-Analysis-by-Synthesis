@@ -70,7 +70,10 @@ def play_strums(guitar, sequenceN, block_start_time, chord_index, precache_time)
 #     audio_buffer = guitar.strum_chord(cur_strum_start_time, True, 1.0, chord)
 #     return audio_buffer
 
-
+def play_note(guitar, stringNumber, tab):
+        return guitar.note(1.0, stringNumber, tab)
+    
+    
 def play_guitar(guitar):
     start_sequence_N = 0
     block_start_time = 10

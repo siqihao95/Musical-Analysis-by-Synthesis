@@ -63,6 +63,11 @@ class Guitar:
 
         # return np.concatenate(note_buffers)
         return added_notes
+    
+    
+    def note(self, velocity, stringNumber, tab):
+        return self.strings[stringNumber].pluck(0, velocity, tab)
+
 
     def set_mode(self, mode):
         for string in self.strings:
