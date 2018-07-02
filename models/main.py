@@ -87,7 +87,7 @@ def train_model(net, train_data, val_data, eval_data):
     evalloader = torch.utils.data.DataLoader(evalset, batch_size=4,
                                              shuffle=False, num_workers=2)
         
-    for epoch in range(800):  # loop over the dataset multiple times
+    for epoch in range(200):  # loop over the dataset multiple times
 
         running_loss = 0.0
         for i, datapoints in enumerate(trainloader, 0):
@@ -196,7 +196,7 @@ def test(net, test_data):
         pred_samples.append(sample)
         
     with open("pred_data.pkl", 'wb') as fh:
-        data_dict = {'pred_samples' : np.array(pred_samples), 'gt_sampling_freqs' : pred_sampling_freqs, 'pred_cqts' : pred_cqts}
+        data_dict = {'pred_samples' : np.array(pred_samples), 'pred_sampling_freqs' : pred_sampling_freqs, 'pred_cqts' : pred_cqts}
         pkl.dump(data_dict, fh)
     fh.close()
     
@@ -219,18 +219,23 @@ def plot_curves():
 
     
 def plot_cqts():
-    with open("gt_data", 'rb') as fh:
+    with open("gt_data.pkl", 'rb') as fh:
         gt_data = pkl.loads(fh.read())
     fh.close()
     gt_cqts = gt_data['gt_cqts']
+    gt_samples = gt_data['gt_samples']
+    gt_sampling_freqs = gt_data['gt_sampling_freqs']
     
-    with open("pred_data", 'rb') as fh:
+    with open("pred_data.pkl", 'rb') as fh:
         pred_data = pkl.loads(fh.read())
     fh.close()
     pred_cqts = pred_data['pred_cqts']
+    pred_samples = pred_data['pred_samples']
+    pred_sampling_freqs = pred_data['pred_sampling_freqs']
     
-#    plt.figure(figsize=(16,12))
-#    plt.imshow(merge_images(gt_cqts[:16], pred_cqts[:16]))
+    #plt.figure(figsize=(16,12))
+    #plt.imshow(merge_images(gt_cqts[:16], pred_cqts[:16]))
+    return gt_samples, gt_sampling_freqs, pred_samples, pred_sampling_freqs
         
         
 if __name__ == "__main__":
@@ -239,4 +244,9 @@ if __name__ == "__main__":
     train_model(net, train_data, val_data, eval_data)
     test(net, test_data)
     #plot_curves()
-    #plot_cqts()
+    #gt_samples, gt_sampling_freqs, pred_samples, pred_sampling_freqs = plot_cqts()
+#     for i in range(len(gt_samples)):
+#         print("GT")
+#         display(Audio(gt_samples[i], rate=2*gt_sampling_freqs[i]))
+#         print("Pred")
+#         display(Audio(pred_samples[i], rate=2*pred_sampling_freqs[i]))
