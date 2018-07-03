@@ -219,14 +219,18 @@ def train_model(net, train_data, val_data, eval_data):
         with open("2fac_train_losses.txt", "a") as text_file:
             text_file.write(str(running_loss/float(len(trainloader.dataset))))
             text_file.write("\n")
+<<<<<<< HEAD
             
+=======
+                
+>>>>>>> 62307dd0ae76855ee5ab1b5b16b1ed3313d0d7ca
         val_loss = evaluate(net, valloader)
         print('epoch %d val_loss: %.6f' % (epoch + 1, val_loss))
         with open("2fac_val_losses.txt", "a") as text_file:
             text_file.write(str(val_loss))
             text_file.write("\n")
     torch.save(net.state_dict(), '2fac_checkpoint.pt')
-
+                    
     print('Finished Training')
     
     
