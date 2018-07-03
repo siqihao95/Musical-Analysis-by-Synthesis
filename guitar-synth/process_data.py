@@ -7,7 +7,7 @@ Created on Mon Jul  2 15:24:48 2018
 """
 
 import pdb
-import ipdb
+#import ipdb
 import math
 import torchvision
 import torchvision.transforms as transforms
@@ -84,7 +84,7 @@ def sample_params(size):
     for i in range(size):
         guitars.append(Guitar(options=Options()))
         audio_buffers.append(sequencer.play_note(guitars[i], stringNumber[i], tab[i]))
-        cqt_spec = cqt_transform.compute_cqt_spec(audio_buffers[i]).T
+        cqt_spec = cqt_transform.compute_cqt_spec(audio_buffers[i], n_bins = 336, bins_per_octave=48, hop_length=256).T
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))
         cqt_specs.append(padded_cqt)
     cqt_specs = np.array(cqt_specs, dtype=np.float32)
@@ -137,10 +137,10 @@ class MyDataset(torch.utils.data.Dataset):
     
     
 def load_data():
-    data.create_datasets()
+   # create_datasets()
     #data.generate_data('val.pkl', 5000)
     print("loading data...")
-    train_data, test_data, val_data, eval_data = data.read_dataset()
+    train_data, test_data, val_data, eval_data = read_dataset()
     print("data loaded")
     return train_data, test_data, val_data, eval_data
 
@@ -196,6 +196,8 @@ def train_model(net, train_data, val_data, eval_data):
             #print(inputs.shape)
             #print(labels.shape)
             inputs.unsqueeze_(1)
+	    inputs = inputs.to(device)
+	    labels = labels.to(device)		
             #print(inputs.shape)
             # zero the parameter gradients
             optimizer.zero_grad()
@@ -289,7 +291,7 @@ def test(net, test_data):
         pred_stringNumbers.append(pred_stringNumber)
         pred_tabs.append(pred_tab)
         audio_buffer = play_note(guitar, int(round(pred_stringNumber)), int(round(pred_tab)))
-        cqt_spec = compute_cqt_spec(audio_buffer).T
+        cqt_spec = cqt_transform.compute_cqt_spec(audio_buffer, n_bins=336, bins_per_octave=48, hop_length=256).T
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))      
         pred_cqts.append(padded_cqt.T)
         pred_samples.append(audio_buffer)
