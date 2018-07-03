@@ -196,8 +196,8 @@ def train_model(net, train_data, val_data, eval_data):
             #print(inputs.shape)
             #print(labels.shape)
             inputs.unsqueeze_(1)
-	    inputs = inputs.to(device)
-	    labels = labels.to(device)		
+            inputs = inputs.to(device)
+            labels = labels.to(device)		
             #print(inputs.shape)
             # zero the parameter gradients
             optimizer.zero_grad()
