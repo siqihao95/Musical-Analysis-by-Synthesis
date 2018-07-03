@@ -219,11 +219,7 @@ def train_model(net, train_data, val_data, eval_data):
         with open("2fac_train_losses.txt", "a") as text_file:
             text_file.write(str(running_loss/float(len(trainloader.dataset))))
             text_file.write("\n")
-<<<<<<< HEAD
             
-=======
-                
->>>>>>> 62307dd0ae76855ee5ab1b5b16b1ed3313d0d7ca
         val_loss = evaluate(net, valloader)
         print('epoch %d val_loss: %.6f' % (epoch + 1, val_loss))
         with open("2fac_val_losses.txt", "a") as text_file:
@@ -265,7 +261,7 @@ def test(net, test_data):
     gt_tabs = []
     
     for i in range(len(targets)):
-        gt_stringNumber, gt_tab = targets.numpy()[i]
+        gt_stringNumber, gt_tab = targets.cpu().numpy()[i]
         guitar = Guitar(options=Options())
         gt_stringNumbers.append(gt_stringNumber)
         gt_tabs.append(gt_tab)
@@ -294,7 +290,7 @@ def test(net, test_data):
         #print("pred_stringNumber: %d, pred_tab: %d" % (int(round(pred_stringNumber)), int(round(pred_tab))))
         pred_stringNumbers.append(pred_stringNumber)
         pred_tabs.append(pred_tab)
-        audio_buffer = play_note(guitar, int(round(pred_stringNumber)), int(round(pred_tab)))
+        audio_buffer = sequencer.play_note(guitar, int(round(pred_stringNumber)), int(round(pred_tab)))
         cqt_spec = cqt_transform.compute_cqt_spec(audio_buffer, n_bins=336, bins_per_octave=48, hop_length=256).T
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))      
         pred_cqts.append(padded_cqt.T)
