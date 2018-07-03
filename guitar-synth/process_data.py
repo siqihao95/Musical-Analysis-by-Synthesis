@@ -152,8 +152,8 @@ def evaluate(net, validation_loader):
 
         inputs, labels = datapoints
         inputs.unsqueeze_(1)
-        inputs = inputs.to(device)
-        labels = labels.to(device)
+        inputs = inputs.float().to(device)
+        labels = labels.float().to(device)
     
         outputs = net(inputs)
         loss = criterion(outputs, labels)
@@ -215,16 +215,16 @@ def train_model(net, train_data, val_data, eval_data):
 #                      (epoch + 1, i + 1, running_loss/500))
 #                running_loss = 0.0
             
-    print('epoch %d train_loss: %.6f' % (epoch + 1, running_loss/float(len(trainloader.dataset))))
-    with open("2fac_train_losses.txt", "a") as text_file:
-        text_file.write(str(running_loss/float(len(trainloader.dataset))))
-        text_file.write("\n")
+        print('epoch %d train_loss: %.6f' % (epoch + 1, running_loss/float(len(trainloader.dataset))))
+        with open("2fac_train_losses.txt", "a") as text_file:
+            text_file.write(str(running_loss/float(len(trainloader.dataset))))
+            text_file.write("\n")
             
-    val_loss = evaluate(net, valloader)
-    print('epoch %d val_loss: %.6f' % (epoch + 1, val_loss))
-    with open("2fac_val_losses.txt", "a") as text_file:
-        text_file.write(str(val_loss))
-        text_file.write("\n")
+        val_loss = evaluate(net, valloader)
+        print('epoch %d val_loss: %.6f' % (epoch + 1, val_loss))
+        with open("2fac_val_losses.txt", "a") as text_file:
+            text_file.write(str(val_loss))
+            text_file.write("\n")
     torch.save(net.state_dict(), '2fac_checkpoint.pt')
 
     print('Finished Training')
@@ -244,7 +244,7 @@ def merge_images(sources, targets, k=10):
 
 
 def test(net, test_data):
-    net.load_state_dict(torch.load('checkpoint.pt'))
+    net.load_state_dict(torch.load('2fac_checkpoint.pt'))
     net.eval()
     criterion = nn.MSELoss()
 
