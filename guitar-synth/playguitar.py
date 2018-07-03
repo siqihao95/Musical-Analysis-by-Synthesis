@@ -1,10 +1,10 @@
 import sys
-import ipdb
-import argparse
+#import ipdb
+#import argparse
 
 import librosa
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 # Local imports
 import sequencer
@@ -52,7 +52,7 @@ if __name__ == '__main__':
 #    librosa.output.write_wav('guitar_output.wav', audio_buffer, 40000)  # The 40000 is the sampling frequency
 #    librosa.output.write_wav('guitar_output_reconstructed.wav', inverse_cqt, 40000)  # The 40000 is the sampling frequency
     
-    net = process_data.Net().double().to(device)
+    net = process_data.Net().to(device)
     train_data, test_data, val_data, eval_data = process_data.load_data()
     process_data.train_model(net, train_data, val_data, eval_data)
     process_data.test(net, test_data)
