@@ -71,7 +71,7 @@ def play_strums(guitar, sequenceN, block_start_time, chord_index, precache_time)
 #     return audio_buffer
 
 def play_note(guitar, stringNumber, tab, freq, smoothing_factor):
-        return guitar.note(1.0, stringNumber, tab, smoothing_factor)
+        return guitar.note(1.0, stringNumber, tab, freq, smoothing_factor)
     
     
 def play_guitar(guitar):
