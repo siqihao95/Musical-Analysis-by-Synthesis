@@ -176,8 +176,8 @@ def create_datasets(suffix):
 #     generate_data('test.pkl', 5000)
 #     generate_data('eval.pkl', 5000)
 #     generate_data('train.pkl', 50000)
-    generate_data("test" + suffix + ".pkl", 100)
-    generate_data("eval" + suffix + ".pkl", 5000)
+    generate_data("test" + suffix + ".pkl", 5000)
+    generate_data("eval" + suffix + ".pkl", 100)
     generate_data("train" + suffix + ".pkl", 50000)
 
     
