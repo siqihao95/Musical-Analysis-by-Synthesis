@@ -23,6 +23,7 @@ import sys
 sys.path.insert(0, '../models')
 import cqt_transform
 import utils
+import librosa
 
 device = 'cuda'
 
@@ -172,13 +173,13 @@ def read_data(file):
 
 
 def create_datasets(suffix):
-    generate_data("val" + suffix + ".pkl", 5000)
+    generate_data_pitch_sf("val" + suffix + ".pkl", 5000)
 #     generate_data('test.pkl', 5000)
 #     generate_data('eval.pkl', 5000)
 #     generate_data('train.pkl', 50000)
-    generate_data("test" + suffix + ".pkl", 5000)
-    generate_data("eval" + suffix + ".pkl", 100)
-    generate_data("train" + suffix + ".pkl", 50000)
+    generate_data_pitch_sf("test" + suffix + ".pkl", 5000)
+    generate_data_pitch_sf("eval" + suffix + ".pkl", 100)
+    generate_data_pitch_sf("train" + suffix + ".pkl", 50000)
 
     
 def read_dataset(suffix):
