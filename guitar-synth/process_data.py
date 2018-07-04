@@ -201,10 +201,10 @@ class MyDataset(torch.utils.data.Dataset):
     
     
 def load_data(suffix):
-    create_datasets()
+    create_datasets(suffix)
     #data.generate_data('val.pkl', 5000)
     print("loading data...")
-    train_data, test_data, val_data, eval_data = read_dataset()
+    train_data, test_data, val_data, eval_data = read_dataset(suffix)
     print("data loaded")
     return train_data, test_data, val_data, eval_data
 
