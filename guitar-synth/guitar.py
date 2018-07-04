@@ -65,8 +65,8 @@ class Guitar:
         return added_notes
     
     
-    def note(self, velocity, stringNumber, tab):
-        return self.strings[stringNumber].pluck(0, velocity, tab)
+    def note(self, velocity, stringNumber, tab, freq, smoothing_factor):
+        return self.strings[stringNumber].pluck(0, velocity, tab, freq, smoothing_factor)
 
 
     def set_mode(self, mode):

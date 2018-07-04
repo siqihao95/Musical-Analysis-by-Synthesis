@@ -57,7 +57,7 @@ class GuitarString:
         return np.zeros(sample_count)
 
 
-    def pluck(self, start_time, velocity, tab):
+    def pluck(self, start_time, velocity, tab, freq, smoothing_factor):
         # create the buffer we're going to write into
         channels = 1
         sample_rate = 40000  # TODO: audioCtx.sample_rate == 4000 ?
@@ -66,11 +66,12 @@ class GuitarString:
         # buffer = self.createBuffer(channels, sample_count, sample_rate)
         buffer = self.createBuffer(sample_count)
 
-        smoothing_factor = calculate_smoothing_factor(self, tab, self.options)
+        #smoothing_factor = calculate_smoothing_factor(self, tab, self.options)
         # 'tab' represents which fret is held while plucking
         # each fret represents an increase in pitch by one semitone
         # (logarithmically, one-twelth of an octave)
-        hz = self.basicHz * math.pow(2, tab / 12)
+        #hz = self.basicHz * math.pow(2, tab / 12)
+        hz = freq
 
         velocity /= 4.0
 

@@ -22,9 +22,28 @@ import sequencer
 import sys
 sys.path.insert(0, '../models')
 import cqt_transform
-
+import utils
 
 device = 'cuda'
+
+num_frets = 20
+
+
+def cqt_specgram(audio, n_bins, bins_per_octave, hop_length, sr, fmin, filter_scale):
+    '''
+    :param audio:
+    :param sr:
+    :return: shape = (n_bins, t)
+    '''
+    c = librosa.cqt(audio, sr = sr, n_bins = n_bins, bins_per_octave = bins_per_octave, hop_length = hop_length,
+                    fmin = fmin, filter_scale = filter_scale)
+    mag, phase = librosa.core.magphase(c)
+    c_p = librosa.amplitude_to_db(mag, amin=1e-13, top_db=120., ref=np.max) / 120.0 + 1.0
+    return c_p
+
+def compute_cqt_spec(audio, n_bins = 84 * 4, bins_per_octave=12 * 4, hop_length = 256, sr = 16000, fmin = librosa.note_to_hz('C1'),
+             filter_scale = 0.8):
+    return cqt_specgram(audio, n_bins, bins_per_octave, hop_length, sr, fmin, filter_scale)
 
 
 class Options:
@@ -72,7 +91,7 @@ def pad_zeros(image, shape):
     return result
 
 
-def sample_params(size):
+def sample_params_string_tab(size):
     stringNumber = np.array([math.floor(np.random.choice(np.arange(0, 6))) for _ in range(size)], dtype=np.int32)
     tab = np.array([math.floor(np.random.choice(np.arange(0, 12))) for _ in range(size)], dtype=np.int32)
 #     print(stringNumber)
@@ -92,10 +111,54 @@ def sample_params(size):
     return stringNumber, tab, cqt_specs
         
 
-def generate_data(file, size):
-    stringNumber, tab, cqt_specs = sample_params(size)
+def generate_data_string_tab(file, size):
+    stringNumber, tab, cqt_specs = sample_params_string_tab(size)
     with open(file, 'wb') as fh:
         data_dict = {'parameters' : np.array([stringNumber, tab]).T, 'cqt_spec' : cqt_specs}
+        pkl.dump(data_dict, fh)
+    fh.close()
+    print(file)
+   
+    
+def sample_params_pitch_sf(size):
+    freqs = np.array(utils.compute_freqs(num_frets))
+    character_variation = np.array([np.random.uniform(0, 1) for _ in range(size)], dtype=np.float32)
+    string_damping = np.array([np.random.uniform(0, 0.7) for _ in range(size)], dtype=np.float32)
+    string_damping_variation = np.array([np.random.uniform(0, 0.5) for _ in range(size)], dtype=np.float32)
+    pluck_damping = np.array([np.random.uniform(0, 0.9) for _ in range(size)], dtype=np.float32)
+    pluck_damping_variation = np.array([np.random.uniform(0, 0.5) for _ in range(size)], dtype=np.float32)
+    string_tension = np.array([np.random.uniform(0, 1) for _ in range(size)], dtype=np.float32)
+    stereo_spread = np.array([np.random.uniform(0, 1) for _ in range(size)], dtype=np.float32)
+    smoothing_factor = np.array([np.random.uniform(0.5, 1) for _ in range(size)], dtype=np.float32)
+    pitch = np.array([np.random.choice(freqs) for _ in range(size)], dtype=np.float32)
+    #  ipdb.set_trace()
+    options = []
+    guitars = []
+    audio_buffers = []
+    cqt_specs = []
+    for i in range(size):
+        options.append(Options(character_variation[i], string_damping[i], string_damping_variation[i], pluck_damping[i], pluck_damping_variation[i], 
+                         string_tension[i], stereo_spread[i]))
+        guitars.append(Guitar(options=options[i]))
+        audio_buffers.append(sequencer.play_note(guitars[i], 0, 0, pitch[i], smoothing_factor[i]))
+#        print(audio_buffers[i])
+#         try:
+#             cqt_spec = compute_cqt_spec(audio_buffers[i]).T
+#         except ParameterError:
+#             print(audio_buffers[i])
+        cqt_spec = compute_cqt_spec(audio_buffers[i]).T
+        padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))
+        cqt_specs.append(padded_cqt)
+    cqt_specs = np.array(cqt_specs, dtype=np.float32)
+    print(cqt_specs.shape)
+    return character_variation, string_damping, string_damping_variation, pluck_damping, pluck_damping_variation, string_tension, stereo_spread, pitch, smoothing_factor, cqt_specs
+        
+
+def generate_data_pitch_sf(file, size):
+    character_variation, string_damping, string_damping_variation, pluck_damping, pluck_damping_variation, string_tension, stereo_spread, pitch, smoothing_factor, cqt_specs = sample_params_pitch_sf(size)
+    with open(file, 'wb') as fh:
+        data_dict = {'parameters' : np.array([character_variation, string_damping, string_damping_variation, pluck_damping, pluck_damping_variation, string_tension, 
+                stereo_spread, pitch, smoothing_factor]).T, 'cqt_spec' : cqt_specs}
         pkl.dump(data_dict, fh)
     fh.close()
     print(file)
@@ -108,18 +171,18 @@ def read_data(file):
     return data
 
 
-def create_datasets():
-    generate_data('2fac_val.pkl', 100)
+def create_datasets(suffix):
+    generate_data("val" + suffix + ".pkl", 5000)
 #     generate_data('test.pkl', 5000)
 #     generate_data('eval.pkl', 5000)
 #     generate_data('train.pkl', 50000)
-    generate_data('2fac_test.pkl', 100)
-    generate_data('2fac_eval.pkl', 100)
-    generate_data('2fac_train.pkl', 500)
+    generate_data("test" + suffix + ".pkl", 100)
+    generate_data("eval" + suffix + ".pkl", 5000)
+    generate_data("train" + suffix + ".pkl", 50000)
 
     
-def read_dataset():
-    return read_data('2fac_train.pkl'), read_data('2fac_test.pkl'), read_data('2fac_val.pkl'), read_data('2fac_eval.pkl')
+def read_dataset(suffix):
+    return read_data("train" + suffix + ".pkl"), read_data("test" + suffix + ".pkl"), read_data("val" + suffix + ".pkl"), read_data("eval" + suffix + ".pkl")
 
 
 class MyDataset(torch.utils.data.Dataset):
@@ -136,8 +199,8 @@ class MyDataset(torch.utils.data.Dataset):
         return len(self.parameters)
     
     
-def load_data():
-   # create_datasets()
+def load_data(suffix):
+    create_datasets()
     #data.generate_data('val.pkl', 5000)
     print("loading data...")
     train_data, test_data, val_data, eval_data = read_dataset()
@@ -302,6 +365,14 @@ def test(net, test_data):
     fh.close()
     
     print('test_loss: %.3f' % evaluate(net, testloader))
+    
+
+if __name__ == '__main__':
+    train_data, test_data, val_data, eval_data = load_data("_pitch_sf")
+    
+    
+    
+    
     
     
         
