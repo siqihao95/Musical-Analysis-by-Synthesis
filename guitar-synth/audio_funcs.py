@@ -153,7 +153,9 @@ def audio_functions(heapBuffer):
             f00 = f00 - f00 * f00 * f00 * 0.166666666666666
             r10 = r10 * r1
             r10 = r10 + (f0 - f10) * c1
+            print(" 156 f10: %.6f, r10: %.6f, " % (f10, r10))
             f10 = f10 + r10
+            print(" 157 f10 %.6f" % f10)
             f10 = f10 - f10 * f10 * f10 * 0.166666666666666
             f0 = heap[i >> 2]
             resonatedSample = f0 + (f00 + f10) * 2.0
