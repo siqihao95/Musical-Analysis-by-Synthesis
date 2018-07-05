@@ -440,7 +440,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_stereo_spread, pred_pitch, pred_smoothing_factor = preds[i]
         #options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation.astype(np.float64), pred_string_tension.astype(np.float64), pred_stereo_spread.astype(np.float64))
         
-        options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation.astype(np.float64), pred_string_tension.astype(np.float64), 0.5)
+        options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation.astype(np.float64), 0.8, pred_stereo_spread.astype(np.float64))
         guitar = Guitar(options=options)
         #if pred_smoothing_factor < 0.5:
         #    pred_smoothing_factor = 0.8
