@@ -458,7 +458,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
 if __name__ == '__main__':
     net = Net_pitch_sf().to(device)
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
-    #train_model(net, train_data, val_data, eval_data, 32, 200, "_pitch_sf_sm", 5000, 500)
+    #train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_sm", 5000, 500)
     test_pitch_sf(net, test_data, 32, "_pitch_sf_sm", 500)
     
     
