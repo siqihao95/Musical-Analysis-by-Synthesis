@@ -183,7 +183,8 @@ def create_datasets(suffix):
 
     
 def read_dataset(suffix):
-    return read_data("train" + suffix + ".pkl"), read_data("test" + suffix + ".pkl"), read_data("val" + suffix + ".pkl"), read_data("eval" + suffix + ".pkl")
+    #return read_data("train" + suffix + ".pkl"), read_data("test" + suffix + ".pkl"), read_data("val" + suffix + ".pkl"), read_data("eval" + suffix + ".pkl")
+    return read_data("val_pitch_sf.pkl"), read_data("test_pitch_sf_sm.pkl"), read_data("val_pitch_sf_sm.pkl"), read_data("eval_pitch_sf.pkl")
 
 
 class MyDataset(torch.utils.data.Dataset):
