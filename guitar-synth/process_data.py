@@ -86,6 +86,26 @@ class Net(nn.Module):
         return x
     
 
+class Net_pitch_sf(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.conv1 = nn.Conv2d(1, 6, 5)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.fc1 = nn.Linear(9 * 108 * 108, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 9)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 9 * 108 * 108)  # -1 is the batch_size
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+    
+    
 def pad_zeros(image, shape):
     result = np.zeros(shape)
     result[:image.shape[0],:image.shape[1]] = image
@@ -177,7 +197,7 @@ def create_datasets(suffix):
 #     generate_data('test.pkl', 5000)
 #     generate_data('eval.pkl', 5000)
 #     generate_data('train.pkl', 50000)
-     generate_data_pitch_sf("test" + suffix + ".pkl", 500)
+#    generate_data_pitch_sf("test" + suffix + ".pkl", 500)
 #    generate_data_pitch_sf("eval" + suffix + ".pkl", 100)
 #    generate_data_pitch_sf("train" + suffix + ".pkl", 50000)
 
@@ -202,7 +222,7 @@ class MyDataset(torch.utils.data.Dataset):
     
     
 def load_data(suffix):
-    create_datasets(suffix)
+    #create_datasets(suffix)
     #data.generate_data('val.pkl', 5000)
     print("loading data...")
     train_data, test_data, val_data, eval_data = read_dataset(suffix)
@@ -436,7 +456,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     print('test_loss: %.3f' % evaluate(net, testloader, testsize))
 
 if __name__ == '__main__':
-    net = Net().to(device)
+    net = Net_pitch_sf().to(device)
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     train_model(net, train_data, val_data, eval_data, 32, 200, "_pitch_sf_sm", 5000, 500)
     test_pitch_sf(net, test_data, 32, "_pitch_sf_sm", 500)
