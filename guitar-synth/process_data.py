@@ -406,9 +406,11 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     gt_samples = []
     gt_pitches = []
     gt_smoothing_factors = []
+    gt_dumping_variations = []
     
     for i in range(len(targets)):
         gt_character_variation, gt_string_damping, gt_string_damping_variation, gt_pluck_damping, gt_pluck_damping_variation, gt_string_tension, gt_stereo_spread, gt_pitch, gt_smoothing_factor = targets.cpu().numpy()[i]
+        gt_dumping_variations.append(gt_pluck_damping_variation)
         options = Options(gt_character_variation.astype(np.float64), gt_string_damping.astype(np.float64), gt_string_damping_variation.astype(np.float64), gt_pluck_damping.astype(np.float64), gt_pluck_damping_variation.astype(np.float64), gt_string_tension.astype(np.float64), gt_stereo_spread.astype(np.float64))
         guitar = Guitar(options=options)
         gt_pitches.append(gt_pitch)
@@ -421,6 +423,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     
     print(gt_pitches)
     print(gt_smoothing_factors)
+    print(gt_dumping_variations)
         
 
     with open("gt_data" + suffix + ".pkl", 'wb') as fh:
@@ -435,11 +438,12 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     pred_cqts = []
     pred_pitches = []
     pred_smoothing_factors = []
+    pred_dumping_variations = []
     
     for i in range(preds.shape[0]):
         pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_stereo_spread, pred_pitch, pred_smoothing_factor = preds[i]
         #options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation.astype(np.float64), pred_string_tension.astype(np.float64), pred_stereo_spread.astype(np.float64))
-        
+        pred_dumping_variations.append(pred_pluck_damping_variation)
         options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), 0.5, pred_string_tension.astype(np.float64), pred_stereo_spread.astype(np.float64))
         guitar = Guitar(options=options)
         #if pred_smoothing_factor < 0.5:
@@ -456,6 +460,10 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))      
         pred_cqts.append(padded_cqt.T)
         pred_samples.append(audio_buffer)
+        
+    print(pred_pitches)
+    print(pred_smoothing_factors)
+    print(pred_dumping_variations)
 
         
     with open("pred_data" + suffix + ".pkl", 'wb') as fh:
