@@ -418,6 +418,9 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         cqt_spec = compute_cqt_spec(audio_buffer).T
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))    
         gt_samples.append(audio_buffer)
+    
+    print(gt_pitches)
+    print(gt_smoothing_factors)
         
 
     with open("gt_data" + suffix + ".pkl", 'wb') as fh:
@@ -440,6 +443,8 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         #print("pred_stringNumber: %d, pred_tab: %d" % (int(round(pred_stringNumber)), int(round(pred_tab))))
         pred_pitches.append(pred_pitch)
         pred_smoothing_factors.append(pred_smoothing_factor)
+        print(pred_pitches)
+        print(pred_smoothing_factors)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
         audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch.astype(np.float64), pred_smoothing_factor.astype(np.float64)*5/6)
         cqt_spec = compute_cqt_spec(audio_buffer).T
