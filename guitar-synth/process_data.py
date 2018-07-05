@@ -414,7 +414,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         gt_pitches.append(gt_pitch)
         gt_smoothing_factors.append(gt_smoothing_factor)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
-        audio_buffer = sequencer.play_note(guitar, 0, 0, gt_pitch, gt_smoothing_factor)
+        audio_buffer = sequencer.play_note(guitar, 0, 0, gt_pitch, gt_smoothing_factor * 5 / 6)
         cqt_spec = compute_cqt_spec(audio_buffer).T
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))    
         gt_samples.append(audio_buffer)
@@ -458,7 +458,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
 if __name__ == '__main__':
     net = Net_pitch_sf().to(device)
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
-    train_model(net, train_data, val_data, eval_data, 32, 200, "_pitch_sf_sm", 5000, 500)
+    #train_model(net, train_data, val_data, eval_data, 32, 200, "_pitch_sf_sm", 5000, 500)
     test_pitch_sf(net, test_data, 32, "_pitch_sf_sm", 500)
     
     
