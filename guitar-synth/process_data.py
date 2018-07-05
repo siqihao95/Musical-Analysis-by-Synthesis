@@ -210,7 +210,7 @@ def load_data(suffix):
     return train_data, test_data, val_data, eval_data
 
 
-def evaluate(net, validation_loader):
+def evaluate(net, validation_loader, size):
     criterion = nn.MSELoss()
     val_loss = 0.0
     for i, datapoints in enumerate(validation_loader, 0):
@@ -226,32 +226,32 @@ def evaluate(net, validation_loader):
         # print statistics
         val_loss += loss.item()
     #return val_loss/float(len(validation_loader.dataset))
-    return val_loss/100
+    return val_loss/size
 
 
-def train_model(net, train_data, val_data, eval_data):
+def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix, trainsize, valsize):
     print("===============Training Data===============")
     criterion = nn.MSELoss()
     optimizer = optim.Adam(net.parameters(), lr=0.001)
-    
+    net.train()
     
     transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
     trainset = MyDataset(parameters=train_data['parameters'], cqt_spectrograms=train_data['cqt_spec'])
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
                                               shuffle=True, num_workers=2)
     
     valset = MyDataset(parameters=val_data['parameters'], cqt_spectrograms=val_data['cqt_spec'])
-    valloader = torch.utils.data.DataLoader(valset, batch_size=4,
+    valloader = torch.utils.data.DataLoader(valset, batch_size=batch_size,
                                             shuffle=False, num_workers=2)
     
     evalset = MyDataset(parameters=eval_data['parameters'], cqt_spectrograms=eval_data['cqt_spec'])
     evalloader = torch.utils.data.DataLoader(evalset, batch_size=4,
                                              shuffle=False, num_workers=2)
     
-    for epoch in range(200):  # loop over the dataset multiple times
+    for epoch in range(epochs):  # loop over the dataset multiple times
         #net.train()
         running_loss = 0.0
         
@@ -281,16 +281,17 @@ def train_model(net, train_data, val_data, eval_data):
 #                running_loss = 0.0
             
         print('epoch %d train_loss: %.6f' % (epoch + 1, running_loss/float(len(trainloader.dataset))))
-        with open("2fac_train_losses.txt", "a") as text_file:
-            text_file.write(str(running_loss/float(len(trainloader.dataset))))
+        with open("train_losses" + suffix + ".txt", "a") as text_file:
+            #text_file.write(str(running_loss/float(len(trainloader.dataset))))
+            text_file.write(str(running_loss/float(trainsize)))
             text_file.write("\n")
             
-        val_loss = evaluate(net, valloader)
+        val_loss = evaluate(net, valloader, valsize)
         print('epoch %d val_loss: %.6f' % (epoch + 1, val_loss))
-        with open("2fac_val_losses.txt", "a") as text_file:
+        with open("val_losses" + suffix + ".txt", "a") as text_file:
             text_file.write(str(val_loss))
             text_file.write("\n")
-    torch.save(net.state_dict(), '2fac_checkpoint.pt')
+    torch.save(net.state_dict(), "checkpoint" + suffix + ".pt")
                     
     print('Finished Training')
     
@@ -308,7 +309,7 @@ def merge_images(sources, targets, k=10):
     return merged
 
 
-def test(net, test_data):
+def test_string_tab(net, test_data):
     net.load_state_dict(torch.load('2fac_checkpoint.pt'))
     net.eval()
     criterion = nn.MSELoss()
@@ -368,9 +369,79 @@ def test(net, test_data):
     
     print('test_loss: %.3f' % evaluate(net, testloader))
     
+    
+def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
+    net.load_state_dict(torch.load("checkpoint" + suffix + ".pt"))
+    net.eval()
+    criterion = nn.MSELoss()
+
+    testset = MyDataset(parameters=test_data['parameters'], cqt_spectrograms=test_data['cqt_spec'])
+    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
+                                             shuffle=False, num_workers=2)
+    
+    inputs, targets = iter(testloader).next()
+    inputs = inputs.to(device)
+    targets = targets.to(device)
+    
+    gt_samples = []
+    gt_pitches = []
+    gt_smoothing_factors = []
+    
+    for i in range(len(targets)):
+        gt_character_variation, gt_string_damping, gt_string_damping_variation, gt_pluck_damping, gt_pluck_damping_variation, gt_string_tension, gt_stereo_spread, gt_pitch, gt_smoothing_factor = targets.cpu().numpy()[i]
+        options = Options(gt_character_variation, gt_string_damping, gt_string_damping_variation, gt_pluck_damping, gt_pluck_damping_variation, gt_string_tension, gt_stereo_spread)
+        guitar = Guitar(options=options)
+        gt_pitches.append(gt_pitch)
+        gt_smoothing_factors.append(gt_smoothing_factor)
+        #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
+        audio_buffer = sequencer.play_note(guitar, 0, 0, gt_pitch, gt_smoothing_factor)
+        cqt_spec = compute_cqt_spec(audio_buffer).T
+        padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))    
+        gt_samples.append(audio_buffer)
+        
+
+    with open("gt_data" + suffix + ".pkl", 'wb') as fh:
+        data_dict = {'gt_samples' : np.array(gt_samples), 'gt_pitches' : np.array(gt_pitches), 'gt_smoothing_factors' : np.array(gt_smoothing_factors), 'gt_cqts' : inputs.cpu().numpy()}
+        pkl.dump(data_dict, fh)
+    fh.close()
+
+    preds = net(inputs.unsqueeze_(1))
+    preds = preds.detach().cpu().numpy()
+    
+    pred_samples = []
+    pred_cqts = []
+    pred_pitches = []
+    pred_smoothing_factors = []
+    
+    for i in range(preds.shape[0]):
+        pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_stereo_spread, pred_pitch, pred_smoothing_factor = preds[i]
+        options = Options(pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_stereo_spread)
+        guitar = Guitar(options=options)
+        #print("pred_stringNumber: %d, pred_tab: %d" % (int(round(pred_stringNumber)), int(round(pred_tab))))
+        pred_pitches.append(pred_pitch)
+        pred_smoothing_factors.append(pred_smoothing_factor)
+        #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
+        audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch, pred_smoothing_factor)
+        cqt_spec = compute_cqt_spec(audio_buffer).T
+        padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))      
+        pred_cqts.append(padded_cqt.T)
+        pred_samples.append(audio_buffer)
+
+        
+    with open("pred_data" + suffix + ".pkl", 'wb') as fh:
+        data_dict = {'pred_samples' : np.array(pred_samples), 'pred_pitches' : np.array(pred_pitches), 'pred_smoothing_factors' : np.array(pred_smoothing_factors), 'pred_cqts' : pred_cqts}
+        pkl.dump(data_dict, fh)
+    fh.close()
+    
+    print('test_loss: %.3f' % evaluate(net, testloader, testsize))
 
 if __name__ == '__main__':
+    net = Net().to(device)
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
+    train_model(net, train_data, val_data, eval_data, 32, 200, "_pitch_sf_sm", 5000, 500)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_sm", 500)
+    
+    
     
     
     
