@@ -173,11 +173,11 @@ def read_data(file):
 
 
 def create_datasets(suffix):
-    generate_data_pitch_sf("val" + suffix + ".pkl", 500)
+#    generate_data_pitch_sf("val" + suffix + ".pkl", 500)
 #     generate_data('test.pkl', 5000)
 #     generate_data('eval.pkl', 5000)
 #     generate_data('train.pkl', 50000)
-    generate_data_pitch_sf("test" + suffix + ".pkl", 500)
+     generate_data_pitch_sf("test" + suffix + ".pkl", 500)
 #    generate_data_pitch_sf("eval" + suffix + ".pkl", 100)
 #    generate_data_pitch_sf("train" + suffix + ".pkl", 50000)
 
