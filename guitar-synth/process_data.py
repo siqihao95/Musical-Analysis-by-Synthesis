@@ -455,6 +455,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         pred_smoothing_factors.append(pred_smoothing_factor)
         #print(pred_pitches)
         #print(pred_smoothing_factors)
+        print(pred_dumping_variations)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
         #audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch.astype(np.float64), pred_smoothing_factor.astype(np.float64)*5/6)
         audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch, pred_smoothing_factor.astype(np.float64))
