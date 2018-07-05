@@ -178,8 +178,8 @@ def create_datasets(suffix):
 #     generate_data('eval.pkl', 5000)
 #     generate_data('train.pkl', 50000)
     generate_data_pitch_sf("test" + suffix + ".pkl", 5000)
-    generate_data_pitch_sf("eval" + suffix + ".pkl", 100)
-    generate_data_pitch_sf("train" + suffix + ".pkl", 50000)
+#    generate_data_pitch_sf("eval" + suffix + ".pkl", 100)
+#    generate_data_pitch_sf("train" + suffix + ".pkl", 50000)
 
     
 def read_dataset(suffix):
@@ -369,7 +369,7 @@ def test(net, test_data):
     
 
 if __name__ == '__main__':
-    train_data, test_data, val_data, eval_data = load_data("_pitch_sf")
+    train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     
     
     
