@@ -421,9 +421,9 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))    
         gt_samples.append(audio_buffer)
     
-    print(gt_pitches)
-    print(gt_smoothing_factors)
-    print(gt_dumping_variations)
+    #print(gt_pitches)
+    #print(gt_smoothing_factors)
+    #print(gt_dumping_variations)
         
 
     with open("gt_data" + suffix + ".pkl", 'wb') as fh:
@@ -464,9 +464,9 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         pred_cqts.append(padded_cqt.T)
         pred_samples.append(audio_buffer)
         
-    print(pred_pitches)
-    print(pred_smoothing_factors)
-    print(pred_dumping_variations)
+    #print(pred_pitches)
+    #print(pred_smoothing_factors)
+    #print(pred_dumping_variations)
 
         
     with open("pred_data" + suffix + ".pkl", 'wb') as fh:
