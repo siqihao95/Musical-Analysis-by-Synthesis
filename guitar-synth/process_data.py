@@ -251,6 +251,20 @@ def read_dataset(suffix):
     return read_data("val_pitch_sf.pkl"), read_data("test_pitch_sf_sm.pkl"), read_data("val_pitch_sf_sm.pkl"), read_data("eval_pitch_sf.pkl")
 
 
+def read_data_hdf5(file):
+    f = h5py.File(file, 'r')
+    dset_parameters = f['parameters']
+    dset_cqt_specs = f['cqt_spec']
+    return { 'parameters': dset_parameters, 'cqt_spec': dset_cqt_specs }
+
+
+def read_dataset_hdf5(suffix):
+    return (read_data_hdf5('val_{}.h5'.format(suffix)),
+            read_data_hdf5('test_{}.h5'.format(suffix)),
+            read_data_hdf5('val_{}.h5'.format(suffix)),
+            read_data_hdf5('eval_{}.h5'.format(suffix)))
+
+
 class MyDataset(torch.utils.data.Dataset):
     def __init__(self, parameters, cqt_spectrograms):
         super(MyDataset, self).__init__()
@@ -270,6 +284,15 @@ def load_data(suffix):
     #data.generate_data('val.pkl', 5000)
     print("loading data...")
     train_data, test_data, val_data, eval_data = read_dataset(suffix)
+    print("data loaded")
+    return train_data, test_data, val_data, eval_data
+
+
+def load_data_hdf5(suffix):
+    #create_datasets(suffix)
+    #data.generate_data('val.pkl', 5000)
+    print("loading data...")
+    train_data, test_data, val_data, eval_data = read_dataset_hdf5(suffix)
     print("data loaded")
     return train_data, test_data, val_data, eval_data
 
@@ -520,23 +543,15 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     
     print('test_loss: %.3f' % evaluate(net, testloader, testsize))
 
+
 if __name__ == '__main__':
     net = Net_pitch_sf().to(device)
     # create_datasets('_pitch_sf_sm')
 
     create_datasets_hdf5('pitch_sf_sm')
 
-    train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     # train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
+    train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
     #train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_sm", 5000, 500)
-    # test_pitch_sf(net, test_data, 32, "_pitch_sf_sm", 500)
-    
-    
-    
-    
-    
-    
-    
-    
-        
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_sm", 500)
