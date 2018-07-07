@@ -404,6 +404,13 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     targets = targets.to(device)
     
     gt_samples = []
+    gt_character_variations = []
+    gt_string_dampings = []
+    gt_string_damping_variations = []
+    gt_pluck_dampings = []
+    gt_pluck_damping_variations = []
+    gt_string_tensions = []
+    gt_stereo_spreads = []
     gt_pitches = []
     gt_smoothing_factors = []
     gt_dumping_variations = []
@@ -413,12 +420,19 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         gt_dumping_variations.append(gt_pluck_damping_variation)
         options = Options(gt_character_variation.astype(np.float64), gt_string_damping.astype(np.float64), gt_string_damping_variation.astype(np.float64), gt_pluck_damping.astype(np.float64), gt_pluck_damping_variation.astype(np.float64), gt_string_tension.astype(np.float64), gt_stereo_spread.astype(np.float64))
         guitar = Guitar(options=options)
+        gt_character_variations.append(gt_character_variation)
+        gt_string_dampings.append(gt_string_damping)
+        gt_string_damping_variations.append(gt_string_damping_variation)
+        gt_pluck_dampings.append(gt_pluck_damping)
+        gt_pluck_damping_variations.append(gt_pluck_damping_variation)
+        gt_string_tensions.append(gt_string_tension)
+        gt_stereo_spreads.append(gt_stereo_spread)
         gt_pitches.append(gt_pitch)
         gt_smoothing_factors.append(gt_smoothing_factor)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
-        audio_buffer = sequencer.play_note(guitar, 0, 0, gt_pitch.astype(np.float64), gt_smoothing_factor.astype(np.float64) * 5 / 6)
+        audio_buffer = sequencer.play_note(guitar, 0, 0, gt_pitch.astype(np.float64), gt_smoothing_factor.astype(np.float64))
         cqt_spec = compute_cqt_spec(audio_buffer).T
-        padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))    
+        padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))  
         gt_samples.append(audio_buffer)
     
     #print(gt_pitches)
@@ -427,7 +441,8 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         
 
     with open("gt_data" + suffix + ".pkl", 'wb') as fh:
-        data_dict = {'gt_samples' : np.array(gt_samples), 'gt_pitches' : np.array(gt_pitches), 'gt_smoothing_factors' : np.array(gt_smoothing_factors), 'gt_cqts' : inputs.cpu().numpy()}
+        data_dict = {'gt_samples' : np.array(gt_samples), 'gt_character_variations': np.array(gt_character_variations) , 'gt_string_dampings' : np.array(gt_string_dampings), 'gt_string_damping_variations' : np.array(gt_string_damping_variations), 'gt_pluck_dampings' : np.array(gt_pluck_dampings), 'gt_pluck_damping_variations' : np.array(gt_pluck_damping_variations), 'gt_string_tensions' : np.array(gt_string_tensions), 'gt_stereo_spreads' : np.array(gt_stereo_spreads),
+                     'gt_pitches' : np.array(gt_pitches), 'gt_smoothing_factors' : np.array(gt_smoothing_factors), 'gt_cqts' : inputs.cpu().numpy()}
         pkl.dump(data_dict, fh)
     fh.close()
 
@@ -436,6 +451,13 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     
     pred_samples = []
     pred_cqts = []
+    pred_character_variations = []
+    pred_string_dampings = []
+    pred_string_damping_variations = []
+    pred_pluck_dampings = []
+    pred_pluck_damping_variations = []
+    pred_string_tensions = []
+    pred_stereo_spreads = []
     pred_pitches = []
     pred_smoothing_factors = []
     pred_dumping_variations = []
@@ -451,11 +473,18 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         #if pred_smoothing_factor < 0.5:
         #    pred_smoothing_factor = 0.8
         #print("pred_stringNumber: %d, pred_tab: %d" % (int(round(pred_stringNumber)), int(round(pred_tab))))
+        pred_character_variations.append(pred_character_variation)
+        pred_string_dampings.append(pred_string_damping)
+        pred_string_damping_variations.append(pred_string_damping_variation)
+        pred_pluck_dampings.append(pred_pluck_damping)
+        pred_pluck_damping_variations.append(pred_pluck_damping_variation)
+        pred_string_tensions.append(pred_string_tension)
+        pred_stereo_spreads.append(pred_stereo_spread)
         pred_pitches.append(pred_pitch)
         pred_smoothing_factors.append(pred_smoothing_factor)
         #print(pred_pitches)
         #print(pred_smoothing_factors)
-        print(pred_dumping_variations)
+        #print(pred_dumping_variations)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
         #audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch.astype(np.float64), pred_smoothing_factor.astype(np.float64)*5/6)
         audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch, pred_smoothing_factor.astype(np.float64))
@@ -470,7 +499,8 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
 
         
     with open("pred_data" + suffix + ".pkl", 'wb') as fh:
-        data_dict = {'pred_samples' : np.array(pred_samples), 'pred_pitches' : np.array(pred_pitches), 'pred_smoothing_factors' : np.array(pred_smoothing_factors), 'pred_cqts' : pred_cqts}
+        data_dict = {'pred_samples' : np.array(pred_samples), 'pred_character_variations': np.array(pred_character_variations) , 'pred_string_dampings' : np.array(pred_string_dampings), 'pred_string_damping_variations' : np.array(pred_string_damping_variations), 'pred_pluck_dampings' : np.array(pred_pluck_dampings), 'pred_pluck_damping_variations' : np.array(pred_pluck_damping_variations), 'pred_string_tensions' : np.array(pred_string_tensions), 'pred_stereo_spreads' : np.array(pred_stereo_spreads),
+                     'pred_pitches' : np.array(pred_pitches), 'pred_smoothing_factors' : np.array(pred_smoothing_factors), 'pred_cqts' : pred_cqts}
         pkl.dump(data_dict, fh)
     fh.close()
     
