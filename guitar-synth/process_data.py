@@ -578,10 +578,10 @@ if __name__ == '__main__':
     net = Net_pitch_sf().to(device)
     # create_datasets('_pitch_sf_sm')
 
-    create_datasets_hdf5('pitch_sf_sm')
+    #create_datasets_hdf5('pitch_sf_sm')
 
-    # train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
-    train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
+    train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
+    #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
     #train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_sm", 5000, 500)
     test_pitch_sf(net, test_data, 32, "_pitch_sf_sm", 500)
