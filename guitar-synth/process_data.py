@@ -360,10 +360,11 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             
             # forward + backward + optimize
             outputs = net(inputs)
-            print(outputs)
+            #print(outputs)
             #m = nn.Sigmoid()
             #outputs = m(5 * (outputs - 0.5))
             loss = criterion(outputs, labels.float())
+            print(loss)
             loss.backward()
             #print("gradients:\n")
             #for param in net.parameters():
@@ -597,5 +598,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_sg", 5000, 500)
+    train_model(net, train_data, val_data, eval_data, 32, 5, "_pitch_sf_nsp_sg", 5000, 500)
     test_pitch_sf(net, test_data, 32, "_pitch_sf_nsp_sg", 500)
