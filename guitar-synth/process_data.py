@@ -98,7 +98,7 @@ class Net_pitch_sf(nn.Module):
         self.conv2 = nn.Conv2d(6, 16, 5)
         self.fc1 = nn.Linear(9 * 108 * 108, 120)
         self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 9)
+        self.fc3 = nn.Linear(84, 8)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
@@ -348,6 +348,7 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             #print(inputs.shape)
             #print(labels.shape)
             inputs.unsqueeze_(1)
+            labels = np.delete(labels, 6, axis=1)
             inputs = inputs.to(device)
             labels = labels.to(device)		
             #print(inputs.shape)
@@ -467,6 +468,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
                                              shuffle=False, num_workers=2)
     
     inputs, targets = iter(testloader).next()
+    targets = np.delete(targets, 6, axis=1)
     inputs = inputs.to(device)
     targets = targets.to(device)
     
@@ -477,7 +479,6 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     gt_pluck_dampings = []
     gt_pluck_damping_variations = []
     gt_string_tensions = []
-    gt_stereo_spreads = []
     gt_pitches = []
     gt_smoothing_factors = []
     gt_dumping_variations = []
@@ -493,7 +494,6 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         gt_pluck_dampings.append(gt_pluck_damping)
         gt_pluck_damping_variations.append(gt_pluck_damping_variation)
         gt_string_tensions.append(gt_string_tension)
-        gt_stereo_spreads.append(gt_stereo_spread)
         gt_pitches.append(gt_pitch)
         gt_smoothing_factors.append(gt_smoothing_factor)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
@@ -508,7 +508,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         
 
     with open("gt_data" + suffix + ".pkl", 'wb') as fh:
-        data_dict = {'gt_samples' : np.array(gt_samples), 'gt_character_variations': np.array(gt_character_variations) , 'gt_string_dampings' : np.array(gt_string_dampings), 'gt_string_damping_variations' : np.array(gt_string_damping_variations), 'gt_pluck_dampings' : np.array(gt_pluck_dampings), 'gt_pluck_damping_variations' : np.array(gt_pluck_damping_variations), 'gt_string_tensions' : np.array(gt_string_tensions), 'gt_stereo_spreads' : np.array(gt_stereo_spreads),
+        data_dict = {'gt_samples' : np.array(gt_samples), 'gt_character_variations': np.array(gt_character_variations) , 'gt_string_dampings' : np.array(gt_string_dampings), 'gt_string_damping_variations' : np.array(gt_string_damping_variations), 'gt_pluck_dampings' : np.array(gt_pluck_dampings), 'gt_pluck_damping_variations' : np.array(gt_pluck_damping_variations), 'gt_string_tensions' : np.array(gt_string_tensions), 
                      'gt_pitches' : np.array(gt_pitches), 'gt_smoothing_factors' : np.array(gt_smoothing_factors), 'gt_cqts' : inputs.cpu().numpy()}
         pkl.dump(data_dict, fh)
     fh.close()
@@ -524,7 +524,6 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     pred_pluck_dampings = []
     pred_pluck_damping_variations = []
     pred_string_tensions = []
-    pred_stereo_spreads = []
     pred_pitches = []
     pred_smoothing_factors = []
     pred_dumping_variations = []
@@ -533,12 +532,12 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_stereo_spread, pred_pitch, pred_smoothing_factor = preds[i]
         #options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation.astype(np.float64), pred_string_tension.astype(np.float64), pred_stereo_spread.astype(np.float64))
         pred_dumping_variations.append(pred_pluck_damping_variation)
-        if pred_pluck_damping_variation < 0.05:
-            pred_pluck_damping_variation = 0.5
+        #if pred_pluck_damping_variation < 0.05:
+        #    pred_pluck_damping_variation = 0.5
         options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation, pred_string_tension.astype(np.float64), pred_stereo_spread.astype(np.float64))
         guitar = Guitar(options=options)
-        #if pred_smoothing_factor < 0.5:
-        #    pred_smoothing_factor = 0.8
+        if pred_smoothing_factor < 0.5:
+            pred_smoothing_factor = 0.8
         #print("pred_stringNumber: %d, pred_tab: %d" % (int(round(pred_stringNumber)), int(round(pred_tab))))
         pred_character_variations.append(pred_character_variation)
         pred_string_dampings.append(pred_string_damping)
@@ -546,7 +545,6 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         pred_pluck_dampings.append(pred_pluck_damping)
         pred_pluck_damping_variations.append(pred_pluck_damping_variation)
         pred_string_tensions.append(pred_string_tension)
-        pred_stereo_spreads.append(pred_stereo_spread)
         pred_pitches.append(pred_pitch)
         pred_smoothing_factors.append(pred_smoothing_factor)
         #print(pred_pitches)
@@ -566,7 +564,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
 
         
     with open("pred_data" + suffix + ".pkl", 'wb') as fh:
-        data_dict = {'pred_samples' : np.array(pred_samples), 'pred_character_variations': np.array(pred_character_variations) , 'pred_string_dampings' : np.array(pred_string_dampings), 'pred_string_damping_variations' : np.array(pred_string_damping_variations), 'pred_pluck_dampings' : np.array(pred_pluck_dampings), 'pred_pluck_damping_variations' : np.array(pred_pluck_damping_variations), 'pred_string_tensions' : np.array(pred_string_tensions), 'pred_stereo_spreads' : np.array(pred_stereo_spreads),
+        data_dict = {'pred_samples' : np.array(pred_samples), 'pred_character_variations': np.array(pred_character_variations) , 'pred_string_dampings' : np.array(pred_string_dampings), 'pred_string_damping_variations' : np.array(pred_string_damping_variations), 'pred_pluck_dampings' : np.array(pred_pluck_dampings), 'pred_pluck_damping_variations' : np.array(pred_pluck_damping_variations), 'pred_string_tensions' : np.array(pred_string_tensions), 
                      'pred_pitches' : np.array(pred_pitches), 'pred_smoothing_factors' : np.array(pred_smoothing_factors), 'pred_cqts' : pred_cqts}
         pkl.dump(data_dict, fh)
     fh.close()
@@ -583,5 +581,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    #train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_sm", 5000, 500)
-    test_pitch_sf(net, test_data, 32, "_pitch_sf_sm", 500)
+    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp", 5000, 500)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_nsp", 500)
