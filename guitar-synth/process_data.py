@@ -107,8 +107,9 @@ class Net_pitch_sf(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
-        x1 = F.sigmoid(5 * (x[:, np.arange(7)] - 0.5))
-        x = torch.Tensor(np.c_[x1.detach().cpu().numpy(), x[:, 7].detach().cpu().numpy()]).to(device)
+        x1 = F.sigmoid(5 * (x[:, np.arange(7)] - 0.5)).unsqueeze(-1)
+        x = torch.cat([x[:, 7], x1], dim=1)
+        #x = torch.Tensor(np.c_[x1.detach().cpu().numpy(), x[:, 7].detach().cpu().numpy()]).to(device)
         return x
     
     
@@ -365,6 +366,8 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             #print(outputs)
             #m = nn.Sigmoid()
             #outputs = m(5 * (outputs - 0.5))
+            #out1 = F.sigmoid(5 * (outputs[:, np.arange(7)] - 0.5))
+            #outputs = np.c_[x1.detach().cpu().numpy(), x[:, 7].detach().cpu().numpy()]).to(device)
             loss = criterion(outputs, labels.float())
             #print(loss)
             loss.backward()
