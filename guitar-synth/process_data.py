@@ -304,6 +304,7 @@ def evaluate(net, validation_loader, size):
 
         inputs, labels = datapoints
         inputs.unsqueeze_(1)
+        labels = np.delete(labels, 6, axis=1) 
         inputs = inputs.float().to(device)
         labels = labels.float().to(device)
     
