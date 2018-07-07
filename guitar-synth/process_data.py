@@ -364,7 +364,7 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             
             # forward + backward + optimize
             outputs = net(inputs)
-            print(outputs[:, 6])
+            #print(outputs[:, 6])
             #print(outputs)
             #m = nn.Sigmoid()
             #outputs = m(5 * (outputs - 0.5))
