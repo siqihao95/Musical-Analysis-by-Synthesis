@@ -99,16 +99,15 @@ class Net_pitch_sf(nn.Module):
         self.fc1 = nn.Linear(9 * 108 * 108, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 8)
-        self.s = nn.Sigmoid()
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = x.view(-1, 9 * 108 * 108)  # -1 is the batch_size
         x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
+        #x = F.relu(self.fc2(x))
+        x = F.Sigmoid(self.fc2(x))
         x = self.fc3(x)
-        x = self.s(x)
         return x
     
     
@@ -589,5 +588,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_2", 5000, 500)
-    test_pitch_sf(net, test_data, 32, "_pitch_sf_nsp_2", 500)
+    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_sg", 5000, 500)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_nsp_sg", 500)
