@@ -106,7 +106,8 @@ class Net_pitch_sf(nn.Module):
         x = x.view(-1, 9 * 108 * 108)  # -1 is the batch_size
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.sigmoid(5 * (self.fc3(x) - 0.5))
+        x1 = F.sigmoid(5 * (self.fc3(x[:, np.arange(7)]) - 0.5))
+        x = np.c_[x1, x[:, 7]]
         return x
     
     
@@ -494,7 +495,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     gt_dumping_variations = []
     
     for i in range(len(targets)):
-        gt_character_variation, gt_string_damping, gt_string_damping_variation, gt_pluck_damping, gt_pluck_damping_variation, gt_string_tension, gt_pitch, gt_smoothing_factor = targets.cpu().numpy()[i]
+        gt_character_variation, gt_string_damping, gt_string_damping_variation, gt_pluck_damping, gt_pluck_damping_variation, gt_string_tension, gt_smoothing_factor, gt_pitch = targets.cpu().numpy()[i]
         gt_dumping_variations.append(gt_pluck_damping_variation)
         options = Options(gt_character_variation.astype(np.float64), gt_string_damping.astype(np.float64), gt_string_damping_variation.astype(np.float64), gt_pluck_damping.astype(np.float64), gt_pluck_damping_variation.astype(np.float64), gt_string_tension.astype(np.float64))
         guitar = Guitar(options=options)
@@ -541,7 +542,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     pred_dumping_variations = []
     
     for i in range(preds.shape[0]):
-        pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_pitch, pred_smoothing_factor = preds[i]
+        pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_smoothing_factor, pred_pitch = preds[i]
         #options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation.astype(np.float64), pred_string_tension.astype(np.float64), pred_stereo_spread.astype(np.float64))
         pred_dumping_variations.append(pred_pluck_damping_variation)
         #if pred_pluck_damping_variation < 0.05:
@@ -598,5 +599,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    #train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_sg", 5000, 500)
+    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_sg", 5000, 500)
     test_pitch_sf(net, test_data, 32, "_pitch_sf_nsp_sg", 500)
