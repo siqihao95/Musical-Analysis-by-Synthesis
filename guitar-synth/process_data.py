@@ -107,8 +107,9 @@ class Net_pitch_sf(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
-        x1 = F.sigmoid(5 * (x[:, np.arange(7)] - 0.5))
-        x = torch.cat([x1, x[:, 7].unsqueeze(1)], dim=1)
+        x1 = F.sigmoid(5 * (x[:, np.arange(6)] - 0.5))
+        x = torch.cat([x1, x[:, 6].unsqueeze(1)], dim=1)
+        x = torch.cat([x, x[:, 7].unsqueeze(1)], dim=1)
         #x = torch.Tensor(np.c_[x1.detach().cpu().numpy(), x[:, 7].detach().cpu().numpy()]).to(device)
         return x
     
@@ -500,7 +501,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     gt_dumping_variations = []
     
     for i in range(len(targets)):
-        gt_character_variation, gt_string_damping, gt_string_damping_variation, gt_pluck_damping, gt_pluck_damping_variation, gt_string_tension, gt_smoothing_factor, gt_pitch = targets.cpu().numpy()[i]
+        gt_character_variation, gt_string_damping, gt_string_damping_variation, gt_pluck_damping, gt_pluck_damping_variation, gt_string_tension, gt_pitch, gt_smoothing_factor= targets.cpu().numpy()[i]
         gt_dumping_variations.append(gt_pluck_damping_variation)
         options = Options(gt_character_variation.astype(np.float64), gt_string_damping.astype(np.float64), gt_string_damping_variation.astype(np.float64), gt_pluck_damping.astype(np.float64), gt_pluck_damping_variation.astype(np.float64), gt_string_tension.astype(np.float64))
         guitar = Guitar(options=options)
@@ -547,7 +548,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     pred_dumping_variations = []
     
     for i in range(preds.shape[0]):
-        pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_smoothing_factor, pred_pitch = preds[i]
+        pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_pitch, pred_smoothing_factor = preds[i]
         #options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation.astype(np.float64), pred_string_tension.astype(np.float64), pred_stereo_spread.astype(np.float64))
         pred_dumping_variations.append(pred_pluck_damping_variation)
         #if pred_pluck_damping_variation < 0.05:
