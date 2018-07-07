@@ -309,7 +309,8 @@ def evaluate(net, validation_loader, size):
         labels = labels.float().to(device)
     
         outputs = net(inputs)
-        outputs =nn.Sigmoid(5 * (outputs - 0.5))
+        m = nn.Sigmoid()
+        outputs = m(5 * (outputs - 0.5))
         loss = criterion(outputs, labels)
 
         # print statistics
@@ -359,7 +360,8 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             
             # forward + backward + optimize
             outputs = net(inputs)
-            outputs = nn.Sigmoid(5 * (outputs - 0.5))
+            m = nn.Sigmoid()
+            outputs = m(5 * (outputs - 0.5))
             loss = criterion(outputs, labels.float())
             loss.backward()
             optimizer.step()
@@ -517,7 +519,8 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     fh.close()
 
     preds = net(inputs.unsqueeze_(1))
-    preds = nn.Sigmoid(5 * (preds - 0.5))
+    m = nn.Sigmoid()
+    preds = m(5 * (preds - 0.5))
     preds = preds.detach().cpu().numpy()
     
     pred_samples = []
