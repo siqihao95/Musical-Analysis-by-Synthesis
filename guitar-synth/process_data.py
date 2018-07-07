@@ -108,8 +108,8 @@ class Net_pitch_sf(nn.Module):
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
         x1 = F.sigmoid(5 * (x[:, np.arange(6)] - 0.5))
-        x = torch.cat([x1, x[:, 6].unsqueeze(1)], dim=1)
-        x = torch.cat([x, x[:, 7].unsqueeze(1)], dim=1)
+        x2 = torch.cat([x1, x[:, 6].unsqueeze(1)], dim=1)
+        x = torch.cat([x2, x[:, 7].unsqueeze(1)], dim=1)
         #x = torch.Tensor(np.c_[x1.detach().cpu().numpy(), x[:, 7].detach().cpu().numpy()]).to(device)
         return x
     
