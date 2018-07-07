@@ -553,22 +553,27 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         #print(pred_dumping_variations)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
         #audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch.astype(np.float64), pred_smoothing_factor.astype(np.float64)*5/6)
-        audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch, pred_smoothing_factor)
-        cqt_spec = compute_cqt_spec(audio_buffer).T
-        padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))      
-        pred_cqts.append(padded_cqt.T)
-        pred_samples.append(audio_buffer)
-        
+        #audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch, pred_smoothing_factor)
+        #cqt_spec = compute_cqt_spec(audio_buffer).T
+        #padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))      
+        #pred_cqts.append(padded_cqt.T)
+        #pred_samples.append(audio_buffer)
+    print(pred_character_variations)   
+    print(pred_string_dampings)
+    print(pred_string_damping_variations)
+    print(pred_pluck_dampings)
+    print(pred_pluck_damping_variations)
+    print(pred_string_tensions)
     #print(pred_pitches)
     #print(pred_smoothing_factors)
     #print(pred_dumping_variations)
 
         
-    with open("pred_data" + suffix + ".pkl", 'wb') as fh:
-        data_dict = {'pred_samples' : np.array(pred_samples), 'pred_character_variations': np.array(pred_character_variations) , 'pred_string_dampings' : np.array(pred_string_dampings), 'pred_string_damping_variations' : np.array(pred_string_damping_variations), 'pred_pluck_dampings' : np.array(pred_pluck_dampings), 'pred_pluck_damping_variations' : np.array(pred_pluck_damping_variations), 'pred_string_tensions' : np.array(pred_string_tensions), 
-                     'pred_pitches' : np.array(pred_pitches), 'pred_smoothing_factors' : np.array(pred_smoothing_factors), 'pred_cqts' : pred_cqts}
-        pkl.dump(data_dict, fh)
-    fh.close()
+    #with open("pred_data" + suffix + ".pkl", 'wb') as fh:
+    #    data_dict = {'pred_samples' : np.array(pred_samples), 'pred_character_variations': np.array(pred_character_variations) , 'pred_string_dampings' : np.array(pred_string_dampings), 'pred_string_damping_variations' : np.array(pred_string_damping_variations), 'pred_pluck_dampings' : np.array(pred_pluck_dampings), 'pred_pluck_damping_variations' : np.array(pred_pluck_damping_variations), 'pred_string_tensions' : np.array(pred_string_tensions), 
+    #                 'pred_pitches' : np.array(pred_pitches), 'pred_smoothing_factors' : np.array(pred_smoothing_factors), 'pred_cqts' : pred_cqts}
+    #    pkl.dump(data_dict, fh)
+    #fh.close()
     
     print('test_loss: %.3f' % evaluate(net, testloader, testsize))
 
