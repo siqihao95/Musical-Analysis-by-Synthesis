@@ -106,7 +106,8 @@ class Net_pitch_sf(nn.Module):
         x = x.view(-1, 9 * 108 * 108)  # -1 is the batch_size
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x1 = F.sigmoid(5 * (self.fc3(x[:, np.arange(7)]) - 0.5))
+        x = self.fc3(x)
+        x1 = F.sigmoid(5 * (x[:, np.arange(7)]) - 0.5)
         x = np.c_[x1, x[:, 7]]
         return x
     
