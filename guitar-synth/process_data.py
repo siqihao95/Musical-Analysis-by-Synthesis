@@ -106,9 +106,7 @@ class Net_pitch_sf(nn.Module):
         x = x.view(-1, 9 * 108 * 108)  # -1 is the batch_size
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        #x = F.sigmoid(self.fc2(x)) - 0.4
         x = self.fc3(x)
-        #x = self.fc3(x)
         return x
     
     
@@ -323,7 +321,7 @@ def evaluate(net, validation_loader, size):
 def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix, trainsize, valsize):
     print("===============Training Data===============")
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(net.parameters(), lr=0.001)
+    optimizer = optim.Adam(net.parameters(), lr=0.01)
     net.train()
     
     transform = transforms.Compose(
@@ -519,6 +517,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     fh.close()
 
     preds = net(inputs.unsqueeze_(1))
+    preds = F.sigmoid(5 * (preds - 0.5))
     preds = preds.detach().cpu().numpy()
     
     pred_samples = []
