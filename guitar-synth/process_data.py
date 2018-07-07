@@ -6,24 +6,28 @@ Created on Mon Jul  2 15:24:48 2018
 @author: siqihao
 """
 
+import sys
 import pdb
 #import ipdb
 import math
+import h5py
+import pickle as pkl
+
+import librosa
+import numpy as np
+
+import torch
 import torchvision
 import torchvision.transforms as transforms
-import torch
-import numpy as np
-import pickle as pkl
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+
 from guitar import Guitar
 import sequencer
-import sys
 sys.path.insert(0, '../models')
 import cqt_transform
 import utils
-import librosa
 
 device = 'cuda'
 
@@ -173,7 +177,47 @@ def sample_params_pitch_sf(size):
     cqt_specs = np.array(cqt_specs, dtype=np.float32)
     print(cqt_specs.shape)
     return character_variation, string_damping, string_damping_variation, pluck_damping, pluck_damping_variation, string_tension, stereo_spread, pitch, smoothing_factor, cqt_specs
-        
+
+
+def save_data_hdf5(fname, size):
+
+    print('Generating {}...'.format(fname))
+
+    freqs = np.array(utils.compute_freqs(num_frets))
+    character_variation = np.array([np.random.uniform(0, 1) for _ in range(size)], dtype=np.float32)
+    string_damping = np.array([np.random.uniform(0, 0.7) for _ in range(size)], dtype=np.float32)
+    string_damping_variation = np.array([np.random.uniform(0, 0.5) for _ in range(size)], dtype=np.float32)
+    pluck_damping = np.array([np.random.uniform(0, 0.9) for _ in range(size)], dtype=np.float32)
+    pluck_damping_variation = np.array([np.random.uniform(0, 0.5) for _ in range(size)], dtype=np.float32)
+    string_tension = np.array([np.random.uniform(0, 1) for _ in range(size)], dtype=np.float32)
+    stereo_spread = np.array([np.random.uniform(0, 1) for _ in range(size)], dtype=np.float32)
+    smoothing_factor = np.array([np.random.uniform(0.5, 1) for _ in range(size)], dtype=np.float32)
+    pitch = np.array([np.random.choice(freqs) for _ in range(size)], dtype=np.float32)
+
+    with h5py.File(fname, 'w') as f:
+        dset_parameters = f.create_dataset('parameters', (size, 9), maxshape=(None, None), dtype='float32', chunks=(size, 9))
+        dset_cqt_specs = f.create_dataset('cqt_spec', (size, 336, 336), maxshape=(None, None, None), dtype='float32', chunks=(1000, 336, 336))
+
+        dset_parameters[:] = np.array([character_variation, string_damping, string_damping_variation, pluck_damping, pluck_damping_variation, string_tension, stereo_spread, pitch, smoothing_factor]).T
+
+        for i in range(size):
+            options = Options(character_variation[i], string_damping[i], string_damping_variation[i], pluck_damping[i], pluck_damping_variation[i], string_tension[i], stereo_spread[i])
+            guitar = Guitar(options=options)
+            audio_buffer = sequencer.play_note(guitar, 0, 0, pitch[i], smoothing_factor[i])
+            cqt_spec = compute_cqt_spec(audio_buffer).T
+            padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))
+
+            dset_cqt_specs[i, :, :] = padded_cqt
+
+    print('Finished generating {}!'.format(fname))
+
+
+def create_datasets_hdf5(suffix):
+    save_data_hdf5('val_{}.h5'.format(suffix), 50)
+    save_data_hdf5('eval_{}.h5'.format(suffix), 50)
+    save_data_hdf5('test_{}.h5'.format(suffix), 50)
+    save_data_hdf5('train_{}.h5'.format(suffix), 100)
+
 
 def generate_data_pitch_sf(file, size):
     character_variation, string_damping, string_damping_variation, pluck_damping, pluck_damping_variation, string_tension, stereo_spread, pitch, smoothing_factor, cqt_specs = sample_params_pitch_sf(size)
@@ -183,8 +227,8 @@ def generate_data_pitch_sf(file, size):
         pkl.dump(data_dict, fh)
     fh.close()
     print(file)
-    
-    
+
+
 def read_data(file):
     with open(file, 'rb') as fh:
         data = pkl.loads(fh.read())
@@ -207,6 +251,20 @@ def read_dataset(suffix):
     return read_data("val_pitch_sf.pkl"), read_data("test_pitch_sf_sm.pkl"), read_data("val_pitch_sf_sm.pkl"), read_data("eval_pitch_sf.pkl")
 
 
+def read_data_hdf5(file):
+    f = h5py.File(file, 'r')
+    dset_parameters = f['parameters']
+    dset_cqt_specs = f['cqt_spec']
+    return { 'parameters': dset_parameters, 'cqt_spec': dset_cqt_specs }
+
+
+def read_dataset_hdf5(suffix):
+    return (read_data_hdf5('val_{}.h5'.format(suffix)),
+            read_data_hdf5('test_{}.h5'.format(suffix)),
+            read_data_hdf5('val_{}.h5'.format(suffix)),
+            read_data_hdf5('eval_{}.h5'.format(suffix)))
+
+
 class MyDataset(torch.utils.data.Dataset):
     def __init__(self, parameters, cqt_spectrograms):
         super(MyDataset, self).__init__()
@@ -226,6 +284,15 @@ def load_data(suffix):
     #data.generate_data('val.pkl', 5000)
     print("loading data...")
     train_data, test_data, val_data, eval_data = read_dataset(suffix)
+    print("data loaded")
+    return train_data, test_data, val_data, eval_data
+
+
+def load_data_hdf5(suffix):
+    #create_datasets(suffix)
+    #data.generate_data('val.pkl', 5000)
+    print("loading data...")
+    train_data, test_data, val_data, eval_data = read_dataset_hdf5(suffix)
     print("data loaded")
     return train_data, test_data, val_data, eval_data
 
@@ -506,17 +573,15 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     
     print('test_loss: %.3f' % evaluate(net, testloader, testsize))
 
+
 if __name__ == '__main__':
     net = Net_pitch_sf().to(device)
-    train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
+    # create_datasets('_pitch_sf_sm')
+
+    create_datasets_hdf5('pitch_sf_sm')
+
+    # train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
+    train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
+
     #train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_sm", 5000, 500)
     test_pitch_sf(net, test_data, 32, "_pitch_sf_sm", 500)
-    
-    
-    
-    
-    
-    
-    
-    
-        
