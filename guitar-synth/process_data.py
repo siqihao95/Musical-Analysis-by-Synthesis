@@ -364,6 +364,9 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             #outputs = m(5 * (outputs - 0.5))
             loss = criterion(outputs, labels.float())
             loss.backward()
+            print("gradients:\n")
+            for param in net.parameters():
+                print(param.grad)
             optimizer.step()
             
             # print statistics
