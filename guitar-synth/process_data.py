@@ -485,9 +485,9 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     gt_dumping_variations = []
     
     for i in range(len(targets)):
-        gt_character_variation, gt_string_damping, gt_string_damping_variation, gt_pluck_damping, gt_pluck_damping_variation, gt_string_tension, gt_stereo_spread, gt_pitch, gt_smoothing_factor = targets.cpu().numpy()[i]
+        gt_character_variation, gt_string_damping, gt_string_damping_variation, gt_pluck_damping, gt_pluck_damping_variation, gt_string_tension, gt_pitch, gt_smoothing_factor = targets.cpu().numpy()[i]
         gt_dumping_variations.append(gt_pluck_damping_variation)
-        options = Options(gt_character_variation.astype(np.float64), gt_string_damping.astype(np.float64), gt_string_damping_variation.astype(np.float64), gt_pluck_damping.astype(np.float64), gt_pluck_damping_variation.astype(np.float64), gt_string_tension.astype(np.float64), gt_stereo_spread.astype(np.float64))
+        options = Options(gt_character_variation.astype(np.float64), gt_string_damping.astype(np.float64), gt_string_damping_variation.astype(np.float64), gt_pluck_damping.astype(np.float64), gt_pluck_damping_variation.astype(np.float64), gt_string_tension.astype(np.float64))
         guitar = Guitar(options=options)
         gt_character_variations.append(gt_character_variation)
         gt_string_dampings.append(gt_string_damping)
@@ -530,12 +530,12 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     pred_dumping_variations = []
     
     for i in range(preds.shape[0]):
-        pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_stereo_spread, pred_pitch, pred_smoothing_factor = preds[i]
+        pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_pitch, pred_smoothing_factor = preds[i]
         #options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation.astype(np.float64), pred_string_tension.astype(np.float64), pred_stereo_spread.astype(np.float64))
         pred_dumping_variations.append(pred_pluck_damping_variation)
         #if pred_pluck_damping_variation < 0.05:
         #    pred_pluck_damping_variation = 0.5
-        options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation, pred_string_tension.astype(np.float64), pred_stereo_spread.astype(np.float64))
+        options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation, pred_string_tension.astype(np.float64))
         guitar = Guitar(options=options)
         if pred_smoothing_factor < 0.5:
             pred_smoothing_factor = 0.8
