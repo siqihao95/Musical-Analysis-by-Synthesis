@@ -327,7 +327,7 @@ def evaluate(net, validation_loader, size, factor):
 def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix, trainsize, valsize, factor):
     print("===============Training Data===============")
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=1e-6)
+    optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=1e-7)
     net.train()
     
     transform = transforms.Compose(
