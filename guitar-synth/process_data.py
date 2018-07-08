@@ -313,8 +313,7 @@ def evaluate(net, validation_loader, size):
         labels = labels.float().to(device)
     
         outputs = net(inputs)
-        #m = nn.Sigmoid()
-        #outputs = m(5 * (outputs - 0.5))
+    
         loss = criterion(outputs, labels)
 
         # print statistics
@@ -599,4 +598,4 @@ if __name__ == '__main__':
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
     #train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_sg", 5000, 500)
-    test_pitch_sf(net, train_data, 32, "_pitch_sf_nsp_sg_150", 5000)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_nsp_sg_150", 500)
