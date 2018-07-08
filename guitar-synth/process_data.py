@@ -571,7 +571,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         #print(pred_dumping_variations)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
         audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch.astype(np.float64), pred_smoothing_factor.astype(np.float64))
-        audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch, pred_smoothing_factor)
+        #audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch, pred_smoothing_factor)
         cqt_spec = compute_cqt_spec(audio_buffer).T
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))      
         pred_cqts.append(padded_cqt.T)
@@ -605,5 +605,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_sg", 5000, 500)
+    #train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_sg", 5000, 500)
     test_pitch_sf(net, test_data, 32, "_pitch_sf_nsp_sg", 500)
