@@ -518,9 +518,14 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))  
         gt_samples.append(audio_buffer)
     
-    #print(gt_pitches)
-    #print(gt_smoothing_factors)
-    #print(gt_dumping_variations)
+    print(gt_character_variations)   
+    print(gt_string_dampings)
+    print(gt_string_damping_variations)
+    print(gt_pluck_dampings)
+    print(gt_pluck_damping_variations)
+    print(gt_string_tensions)
+    print(gt_pitches)
+    print(gt_smoothing_factors)
         
 
     with open("gt_data" + suffix + ".pkl", 'wb') as fh:
