@@ -317,8 +317,10 @@ def evaluate(net, validation_loader, size, factor):
         labels = labels.float().to(device)
     
         outputs = net(inputs)
-        outputs[:, np.arange(6)] = outputs[:, np.arange(6)] * factor
-        labels[:, np.arange(6)] =labels[:, np.arange(6)] * factor
+        outputs[:, np.arange(5)] = outputs[:, np.arange(5)] * factor
+        labels[:, np.arange(5)] =labels[:, np.arange(5)] * factor
+        outputs[:, 5] = outputs[:, 5] * 800     
+        labels[:, 5] = labels[:, 5] * 800
         outputs[:, 7] = outputs[:, 7] * factor     
         labels[:, 7] = labels[:, 7] * factor
         loss = criterion(outputs, labels)
@@ -370,8 +372,10 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             
             # forward + backward + optimize
             outputs = net(inputs)
-            outputs[:, np.arange(6)] = outputs[:, np.arange(6)] * factor
-            labels[:, np.arange(6)] =labels[:, np.arange(6)] * factor
+            outputs[:, np.arange(5)] = outputs[:, np.arange(5)] * factor
+            labels[:, np.arange(5)] =labels[:, np.arange(5)] * factor
+            outputs[:, 5] = outputs[:, 5] * 800     
+            labels[:, 5] = labels[:, 5] * 800
             outputs[:, 7] = outputs[:, 7] * factor     
             labels[:, 7] = labels[:, 7] * factor
             #print(outputs[:, 0])
