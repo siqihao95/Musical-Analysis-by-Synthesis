@@ -103,7 +103,7 @@ class Net_pitch_sf(nn.Module):
     def forward(self, x):
         x = F.dropout(x, p=0.1, training=self.training)
         x = self.pool(F.relu(self.conv1(x)))
-        x = F.dropout(x, p=0.3, training=self.training)
+        x = F.dropout(x, p=0.5, training=self.training)
         x = self.pool(F.relu(self.conv2(x)))
         x = x.view(-1, 9 * 108 * 108)  # -1 is the batch_size
         x = F.relu(self.fc1(x))
