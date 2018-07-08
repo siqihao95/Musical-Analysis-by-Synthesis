@@ -576,13 +576,14 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))      
         pred_cqts.append(padded_cqt.T)
         pred_samples.append(audio_buffer)
+
     #print(pred_character_variations)   
     #print(pred_string_dampings)
     #print(pred_string_damping_variations)
     #print(pred_pluck_dampings)
     #print(pred_pluck_damping_variations)
     #print(pred_string_tensions)
-    #print(pred_pitches)
+    print(pred_pitches)
     #print(pred_smoothing_factors)
     #print(pred_dumping_variations)
 
