@@ -107,9 +107,9 @@ class Net_pitch_sf(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
-        x1 = F.sigmoid(0.5 * (x[:, np.arange(6)] - 0.5))
+        x1 = F.sigmoid(0.5 * x[:, np.arange(6)])
         x2 = torch.cat([x1, x[:, 6].unsqueeze(1)], dim=1)
-        x = torch.cat([x2, F.sigmoid(0.5 * (x[:, 7]-0.5)).unsqueeze(1)], dim=1)
+        x = torch.cat([x2, F.sigmoid(0.5 * x[:, 7]).unsqueeze(1)], dim=1)
         return x
     
     
@@ -300,7 +300,7 @@ def load_data_hdf5(suffix):
     return train_data, test_data, val_data, eval_data
 
 
-def evaluate(net, validation_loader, size):
+def evaluate(net, validation_loader, size, factor):
     criterion = nn.MSELoss()
     val_loss = 0.0
     for i, datapoints in enumerate(validation_loader, 0):
@@ -312,7 +312,10 @@ def evaluate(net, validation_loader, size):
         labels = labels.float().to(device)
     
         outputs = net(inputs)
-    
+        outputs[:, np.arange(6)] = outputs[:, np.arange(6)] * factor
+        labels[:, np.arange(6)] =labels[:, np.arange(6)] * factor
+        outputs[:, 7] = outputs[:, 7] * factor     
+        labels[:, 7] = labels[:, 7] * factor
         loss = criterion(outputs, labels)
 
         # print statistics
@@ -321,7 +324,7 @@ def evaluate(net, validation_loader, size):
     return val_loss/size
 
 
-def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix, trainsize, valsize):
+def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix, trainsize, valsize, factor):
     print("===============Training Data===============")
     criterion = nn.MSELoss()
     optimizer = optim.Adam(net.parameters(), lr=0.001)
@@ -362,6 +365,10 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             
             # forward + backward + optimize
             outputs = net(inputs)
+            outputs[:, np.arange(6)] = outputs[:, np.arange(6)] * factor
+            labels[:, np.arange(6)] =labels[:, np.arange(6)] * factor
+            outputs[:, 7] = outputs[:, 7] * factor     
+            labels[:, 7] = labels[:, 7] * factor
             #print(outputs[:, 0])
             #print(outputs)
             #m = nn.Sigmoid()
@@ -389,7 +396,7 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             text_file.write(str(running_loss/float(trainsize)))
             text_file.write("\n")
             
-        val_loss = evaluate(net, valloader, valsize)
+        val_loss = evaluate(net, valloader, valsize, factor)
         print('epoch %d val_loss: %.6f' % (epoch + 1, val_loss))
         with open("val_losses" + suffix + ".txt", "a") as text_file:
             text_file.write(str(val_loss))
@@ -473,7 +480,7 @@ def test_string_tab(net, test_data):
     print('test_loss: %.3f' % evaluate(net, testloader))
     
     
-def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
+def test_pitch_sf(net, test_data, batch_size, suffix ,testsize, factor):
     net.load_state_dict(torch.load("checkpoint" + suffix + ".pt"))
     net.eval()
     criterion = nn.MSELoss()
@@ -591,7 +598,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         pkl.dump(data_dict, fh)
     fh.close()
     
-    print('test_loss: %.3f' % evaluate(net, testloader, testsize))
+    print('test_loss: %.3f' % evaluate(net, testloader, testsize, factor))
 
 
 if __name__ == '__main__':
@@ -603,5 +610,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_sg_100", 5000, 500)
-    test_pitch_sf(net, test_data, 32, "_pitch_sf_nsp_sg_100", 500)
+    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac", 5000, 500, 500)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac", 500, 500)
