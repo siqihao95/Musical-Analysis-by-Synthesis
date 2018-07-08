@@ -108,9 +108,9 @@ class Net_pitch_sf(nn.Module):
         x = F.dropout(x, p=0.3, training=self.training)
         x = x.view(-1, 9 * 108 * 108)  # -1 is the batch_size
         x = F.relu(self.fc1(x))
-        x = F.dropout(x, p=0.2, training=self.training)
+        x = F.dropout(x, p=0.5, training=self.training)
         x = F.relu(self.fc2(x))
-        x = F.dropout(x, p=0.1, training=self.training)
+        x = F.dropout(x, p=0.2, training=self.training)
         x = self.fc3(x)
         x1 = F.sigmoid(0.5 * x[:, np.arange(6)])
         x2 = torch.cat([x1, x[:, 6].unsqueeze(1)], dim=1)
