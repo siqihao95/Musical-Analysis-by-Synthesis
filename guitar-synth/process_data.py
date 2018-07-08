@@ -363,7 +363,7 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             
             # forward + backward + optimize
             outputs = net(inputs)
-            #print(outputs[:, 6])
+            #print(outputs[:, 0])
             #print(outputs)
             #m = nn.Sigmoid()
             #outputs = m(5 * (outputs - 0.5))
@@ -518,6 +518,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))  
         gt_samples.append(audio_buffer)
     
+    print("gt:\n")
     print(gt_character_variations)   
     print(gt_string_dampings)
     print(gt_string_damping_variations)
@@ -573,6 +574,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         pred_cqts.append(padded_cqt.T)
         pred_samples.append(audio_buffer)
 
+    print("predicted:\n")
     print(pred_character_variations)   
     print(pred_string_dampings)
     print(pred_string_damping_variations)
@@ -602,5 +604,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    #train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_sg", 5000, 500)
-    test_pitch_sf(net, test_data, 32, "_pitch_sf_nsp_sg_150", 500)
+    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_sg_100", 5000, 500)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_nsp_sg_100", 500)
