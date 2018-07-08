@@ -101,6 +101,7 @@ class Net_pitch_sf(nn.Module):
         self.fc3 = nn.Linear(84, 8)
 
     def forward(self, x):
+        x = F.dropout(x, p=0.2, training=self.training)
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = x.view(-1, 9 * 108 * 108)  # -1 is the batch_size
@@ -327,7 +328,7 @@ def evaluate(net, validation_loader, size, factor):
 def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix, trainsize, valsize, factor):
     print("===============Training Data===============")
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=1e-7)
+    optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=1e-6)
     net.train()
     
     transform = transforms.Compose(
