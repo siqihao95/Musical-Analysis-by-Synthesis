@@ -551,13 +551,8 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_pitch, pred_smoothing_factor = preds[i]
         #options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation.astype(np.float64), pred_string_tension.astype(np.float64), pred_stereo_spread.astype(np.float64))
         pred_dumping_variations.append(pred_pluck_damping_variation)
-        #if pred_pluck_damping_variation < 0.05:
-        #    pred_pluck_damping_variation = 0.5
         options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation.astype(np.float64), pred_string_tension.astype(np.float64))
         guitar = Guitar(options=options)
-        #if pred_smoothing_factor < 0.5:
-        #    pred_smoothing_factor = 0.8
-        #print("pred_stringNumber: %d, pred_tab: %d" % (int(round(pred_stringNumber)), int(round(pred_tab))))
         pred_character_variations.append(pred_character_variation)
         pred_string_dampings.append(pred_string_damping)
         pred_string_damping_variations.append(pred_string_damping_variation)
@@ -566,9 +561,6 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
         pred_string_tensions.append(pred_string_tension)
         pred_pitches.append(pred_pitch)
         pred_smoothing_factors.append(pred_smoothing_factor)
-        #print(pred_pitches)
-        #print(pred_smoothing_factors)
-        #print(pred_dumping_variations)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
         audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch.astype(np.float64), pred_smoothing_factor.astype(np.float64))
         #audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch, pred_smoothing_factor)
@@ -583,7 +575,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize):
     #print(pred_pluck_dampings)
     #print(pred_pluck_damping_variations)
     #print(pred_string_tensions)
-    print(pred_pitches)
+    #print(pred_pitches)
     #print(pred_smoothing_factors)
     #print(pred_dumping_variations)
 
@@ -607,4 +599,4 @@ if __name__ == '__main__':
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
     #train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_nsp_sg", 5000, 500)
-    test_pitch_sf(net, test_data, 32, "_pitch_sf_nsp_sg_150", 500)
+    test_pitch_sf(net, train_data, 32, "_pitch_sf_nsp_sg_150", 500)
