@@ -619,5 +619,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    train_model(net, train_data, val_data, eval_data, 32, 80, "_pitch_sf_fac500", 5000, 500, 500)
-    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac500", 500, 500)
+    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac500_2", 5000, 500, 500)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac500_2", 500, 500)
