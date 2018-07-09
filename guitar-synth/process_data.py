@@ -584,7 +584,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize, factor):
     pred_pitches = []
     pred_smoothing_factors = []
     pred_dumping_variations = []
-    
+    pred_log_pitches = [] 
     for i in range(preds.shape[0]):
         pred_character_variation, pred_string_damping, pred_string_damping_variation, pred_pluck_damping, pred_pluck_damping_variation, pred_string_tension, pred_pitch, pred_smoothing_factor = preds[i]
         #options = Options(pred_character_variation.astype(np.float64), pred_string_damping.astype(np.float64), pred_string_damping_variation.astype(np.float64), pred_pluck_damping.astype(np.float64), pred_pluck_damping_variation.astype(np.float64), pred_string_tension.astype(np.float64), pred_stereo_spread.astype(np.float64))
@@ -598,6 +598,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize, factor):
         pred_pluck_damping_variations.append(pred_pluck_damping_variation)
         pred_string_tensions.append(pred_string_tension)
         pred_pitches.append(np.exp2(pred_pitch))
+	pred_log_pitches.append(pred_pitch)
         pred_smoothing_factors.append(pred_smoothing_factor)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
         audio_buffer = sequencer.play_note(guitar, 0, 0, np.exp2(pred_pitch.astype(np.float64)), pred_smoothing_factor.astype(np.float64))
@@ -615,6 +616,7 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize, factor):
     print(pred_pluck_damping_variations)
     print(pred_string_tensions)
     print(pred_pitches)
+    print(pred_log_pitches)	
     print(pred_smoothing_factors)
     #print(pred_dumping_variations)
 
@@ -637,5 +639,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac30", 5000, 500, 300)
-    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac300", 500, 30)
+    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac400", 5000, 500, 400)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac400", 500, 400)
