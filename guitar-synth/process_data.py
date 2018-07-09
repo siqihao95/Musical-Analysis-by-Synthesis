@@ -325,8 +325,8 @@ def evaluate(net, validation_loader, size, factor, fixed=False):
             outputs[:, 6] = torch.Tensor(np.full((outputs[:, 6].shape[0], 1), 261.63, dtype = np.float32))
             labels[:, 6] = torch.Tensor(np.full((labels[:, 6].shape[0], 1), 261.63, dtype = np.float32))
         else: 
-            outputs[:, 5] = outputs[:, 5] * 800     
-            labels[:, 5] = labels[:, 5] * 800
+            outputs[:, 5] = outputs[:, 5] * 10     
+            labels[:, 5] = labels[:, 5] * 10
         labels[:, 6] = np.log2(labels[:, 6])
         outputs[:, 7] = outputs[:, 7] * factor     
         labels[:, 7] = labels[:, 7] * factor
@@ -359,8 +359,8 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
     evalset = MyDataset(parameters=eval_data['parameters'], cqt_spectrograms=eval_data['cqt_spec'])
     evalloader = torch.utils.data.DataLoader(evalset, batch_size=4,
                                              shuffle=False, num_workers=2)
-    
-    suffix += "_fixed"
+    if fixed:
+        suffix += "_fixed"
     
     for epoch in range(epochs):  # loop over the dataset multiple times
         #net.train()
@@ -389,8 +389,8 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
                 outputs[:, 6] = torch.Tensor(np.full((outputs[:, 6].shape[0], 1), 261.63, dtype = np.float32))
                 labels[:, 6] = torch.Tensor(np.full((labels[:, 6].shape[0], 1), 261.63, dtype = np.float32))
             else: 
-                outputs[:, 5] = outputs[:, 5] * 800     
-                labels[:, 5] = labels[:, 5] * 800
+                outputs[:, 5] = outputs[:, 5] * 10     
+                labels[:, 5] = labels[:, 5] * 10
             labels[:, 6] = np.log2(labels[:, 6])
             outputs[:, 7] = outputs[:, 7] * factor     
             labels[:, 7] = labels[:, 7] * factor
