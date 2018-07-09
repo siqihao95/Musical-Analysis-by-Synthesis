@@ -305,7 +305,7 @@ def load_data_hdf5(suffix):
     return train_data, test_data, val_data, eval_data
 
 
-def evaluate(net, validation_loader, size, factor):
+def evaluate(net, validation_loader, size, factor, fixed=False):
     criterion = nn.MSELoss()
     val_loss = 0.0
     for i, datapoints in enumerate(validation_loader, 0):
@@ -319,8 +319,15 @@ def evaluate(net, validation_loader, size, factor):
         outputs = net(inputs)
         outputs[:, np.arange(5)] = outputs[:, np.arange(5)] * factor
         labels[:, np.arange(5)] =labels[:, np.arange(5)] * factor
-        outputs[:, 5] = outputs[:, 5] * 800     
-        labels[:, 5] = labels[:, 5] * 800
+        if fixed:
+            outputs[:, 5] = torch.Tensor(np.full((outputs[:, 5].shape[0], 1), 0.6, dtype = np.float32))
+            labels[:, 5] = torch.Tensor(np.full((labels[:, 5].shape[0], 1), 0.6, dtype = np.float32))
+            outputs[:, 6] = torch.Tensor(np.full((outputs[:, 6].shape[0], 1), 261.63, dtype = np.float32))
+            labels[:, 6] = torch.Tensor(np.full((labels[:, 6].shape[0], 1), 261.63, dtype = np.float32))
+        else: 
+            outputs[:, 5] = outputs[:, 5] * 800     
+            labels[:, 5] = labels[:, 5] * 800
+        labels[:, 6] = np.log2(labels[:, 6])
         outputs[:, 7] = outputs[:, 7] * factor     
         labels[:, 7] = labels[:, 7] * factor
         loss = criterion(outputs, labels)
@@ -331,7 +338,7 @@ def evaluate(net, validation_loader, size, factor):
     return val_loss/size
 
 
-def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix, trainsize, valsize, factor):
+def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix, trainsize, valsize, factor, fixed=False):
     print("===============Training Data===============")
     criterion = nn.MSELoss()
     optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=1e-6)
@@ -352,6 +359,8 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
     evalset = MyDataset(parameters=eval_data['parameters'], cqt_spectrograms=eval_data['cqt_spec'])
     evalloader = torch.utils.data.DataLoader(evalset, batch_size=4,
                                              shuffle=False, num_workers=2)
+    
+    suffix += "_fixed"
     
     for epoch in range(epochs):  # loop over the dataset multiple times
         #net.train()
@@ -374,8 +383,15 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             outputs = net(inputs)
             outputs[:, np.arange(5)] = outputs[:, np.arange(5)] * factor
             labels[:, np.arange(5)] =labels[:, np.arange(5)] * factor
-            outputs[:, 5] = outputs[:, 5] * 800     
-            labels[:, 5] = labels[:, 5] * 800
+            if fixed:
+                outputs[:, 5] = torch.Tensor(np.full((outputs[:, 5].shape[0], 1), 0.6, dtype = np.float32))
+                labels[:, 5] = torch.Tensor(np.full((labels[:, 5].shape[0], 1), 0.6, dtype = np.float32))
+                outputs[:, 6] = torch.Tensor(np.full((outputs[:, 6].shape[0], 1), 261.63, dtype = np.float32))
+                labels[:, 6] = torch.Tensor(np.full((labels[:, 6].shape[0], 1), 261.63, dtype = np.float32))
+            else: 
+                outputs[:, 5] = outputs[:, 5] * 800     
+                labels[:, 5] = labels[:, 5] * 800
+            labels[:, 6] = np.log2(labels[:, 6])
             outputs[:, 7] = outputs[:, 7] * factor     
             labels[:, 7] = labels[:, 7] * factor
             #print(outputs[:, 0])
@@ -579,10 +595,10 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize, factor):
         pred_pluck_dampings.append(pred_pluck_damping)
         pred_pluck_damping_variations.append(pred_pluck_damping_variation)
         pred_string_tensions.append(pred_string_tension)
-        pred_pitches.append(pred_pitch)
+        pred_pitches.append(np.exp2(pred_pitch))
         pred_smoothing_factors.append(pred_smoothing_factor)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
-        audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch.astype(np.float64), pred_smoothing_factor.astype(np.float64))
+        audio_buffer = sequencer.play_note(guitar, 0, 0, np.exp2(pred_pitch.astype(np.float64)), pred_smoothing_factor.astype(np.float64))
         #audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch, pred_smoothing_factor)
         cqt_spec = compute_cqt_spec(audio_buffer).T
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))      
@@ -619,5 +635,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac500_2", 5000, 500, 500)
-    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac500_2", 500, 500)
+    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac10", 5000, 500, 10)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac10", 500, 10)
