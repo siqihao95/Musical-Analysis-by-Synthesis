@@ -325,9 +325,10 @@ def evaluate(net, validation_loader, size, factor, fixed=False):
             outputs[:, 6] = torch.Tensor(np.full((outputs[:, 6].shape[0], 1), 261.63, dtype = np.float32))
             labels[:, 6] = torch.Tensor(np.full((labels[:, 6].shape[0], 1), 261.63, dtype = np.float32))
         else: 
-            outputs[:, 5] = outputs[:, 5] * 10     
-            labels[:, 5] = labels[:, 5] * 10
-        labels[:, 6] = np.log2(labels[:, 6])
+            outputs[:, 5] = outputs[:, 5] * 500 
+            labels[:, 5] = labels[:, 5] * 500 
+        labels[:, 6] = np.log2(labels[:, 6]) * 100
+	outputs[:, 6] = outputs[:, 6] * 100 
         outputs[:, 7] = outputs[:, 7] * factor     
         labels[:, 7] = labels[:, 7] * factor
         loss = criterion(outputs, labels)
@@ -389,9 +390,10 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
                 outputs[:, 6] = torch.Tensor(np.full((outputs[:, 6].shape[0], 1), 261.63, dtype = np.float32))
                 labels[:, 6] = torch.Tensor(np.full((labels[:, 6].shape[0], 1), 261.63, dtype = np.float32))
             else: 
-                outputs[:, 5] = outputs[:, 5] * 10     
-                labels[:, 5] = labels[:, 5] * 10
-            labels[:, 6] = np.log2(labels[:, 6])
+                outputs[:, 5] = outputs[:, 5] * 500
+                labels[:, 5] = labels[:, 5] * 500 
+            labels[:, 6] = np.log2(labels[:, 6]) * 100
+	    outputs[:, 6] = outputs[:, 6] * 100 
             outputs[:, 7] = outputs[:, 7] * factor     
             labels[:, 7] = labels[:, 7] * factor
             #print(outputs[:, 0])
@@ -635,5 +637,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac10", 5000, 500, 10)
-    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac10", 500, 10)
+    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac30", 5000, 500, 300)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac300", 500, 30)
