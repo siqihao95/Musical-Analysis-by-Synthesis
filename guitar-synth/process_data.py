@@ -327,8 +327,10 @@ def evaluate(net, validation_loader, size, factor, fixed=False):
         else: 
             outputs[:, 5] = outputs[:, 5] * 500 
             labels[:, 5] = labels[:, 5] * 500 
-        labels[:, 6] = np.log2(labels[:, 6]) * 100
-        outputs[:, 6] = outputs[:, 6] * 100 
+        #labels[:, 6] = np.log2(labels[:, 6]) * 100
+        labels[:, 6] = labels[:, 6] * 100
+        outputs[:, 6] = np.exp2(outputs[:, 6]) * 100
+        #outputs[:, 6] = outputs[:, 6] * 100 
         outputs[:, 7] = outputs[:, 7] * factor     
         labels[:, 7] = labels[:, 7] * factor
         loss = criterion(outputs, labels)
@@ -392,8 +394,10 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             else: 
                 outputs[:, 5] = outputs[:, 5] * 500
                 labels[:, 5] = labels[:, 5] * 500 
-            labels[:, 6] = np.log2(labels[:, 6]) * 100
-            outputs[:, 6] = outputs[:, 6] * 100 
+            #labels[:, 6] = np.log2(labels[:, 6]) * 100
+            labels[:, 6] = labels[:, 6] * 100
+            #outputs[:, 6] = outputs[:, 6] * 100
+            outputs[:, 6] = np.exp2(outputs[:, 6]) * 100
             outputs[:, 7] = outputs[:, 7] * factor     
             labels[:, 7] = labels[:, 7] * factor
             #print(outputs[:, 0])
@@ -639,5 +643,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac400", 5000, 500, 400)
-    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac400", 500, 400)
+    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac_exp400", 5000, 500, 400)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac_exp400", 500, 400)
