@@ -327,13 +327,14 @@ def evaluate(net, validation_loader, size, factor, fixed=False):
         else: 
             outputs[:, 5] = outputs[:, 5] * 500 
             labels[:, 5] = labels[:, 5] * 500 
-        #labels[:, 6] = np.log2(labels[:, 6]) * 100
-        outputs[:, 6] = torch.pow(torch.Tensor([2]), outputs[:, 6])
+        labels[:, 6] = torch.log(labels[:, 6]) * 100
+        #outputs[:, 6] = np.power(2, outputs[:, 6])
+        #outputs[:, 6] = torch.pow(torch.Tensor([2]), outputs[:, 6])
         #outputs[:, 6] = torch.Tensor(np.exp2(outputs[:, 6].detach().cpu().numpy())).to(device)
-        #outputs[:, 6] = outputs[:, 6] * 100 
+        outputs[:, 6] = outputs[:, 6] * 100 
         outputs[:, 7] = outputs[:, 7] * factor     
         labels[:, 7] = labels[:, 7] * factor
-        loss = criterion(outputs[:, 6], labels[:, 6])
+        loss = criterion(outputs, labels)
 
         # print statistics
         val_loss += loss.item()
@@ -394,12 +395,13 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             else: 
                 outputs[:, 5] = outputs[:, 5] * 500
                 labels[:, 5] = labels[:, 5] * 500 
-            #labels[:, 6] = np.log2(labels[:, 6]) * 100
-            #outputs[:, 6] = outputs[:, 6] * 100
-            outputs[:, 6] = torch.pow(torch.Tensor([2]), outputs[:, 6]) 
+            labels[:, 6] = torch.log(labels[:, 6]) * 100
+            outputs[:, 6] = outputs[:, 6] * 100
+            #outputs[:, 6] = np.power(2, outputs[:, 6])
+            #outputs[:, 6] = torch.pow(torch.Tensor([2]), outputs[:, 6]) 
             #outputs[:, 6] = torch.Tensor(np.exp2(outputs[:, 6].detach().cpu().numpy())).to(device)
-            print(outputs[:, 6])
-            print(labels[:, 6])
+            #print(outputs[:, 6])
+            #print(labels[:, 6])
             outputs[:, 7] = outputs[:, 7] * factor     
             labels[:, 7] = labels[:, 7] * factor
             #print(outputs[:, 0])
@@ -408,7 +410,7 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
             #outputs = m(5 * (outputs - 0.5))
             #out1 = F.sigmoid(5 * (outputs[:, np.arange(7)] - 0.5))
             #outputs = np.c_[x1.detach().cpu().numpy(), x[:, 7].detach().cpu().numpy()]).to(device)
-            loss = criterion(outputs[:, 6], labels[:, 6].float())
+            loss = criterion(outputs, labels.float())
             #print(loss)
             loss.backward()
             #print("gradients:\n")
@@ -603,11 +605,11 @@ def test_pitch_sf(net, test_data, batch_size, suffix ,testsize, factor):
         pred_pluck_dampings.append(pred_pluck_damping)
         pred_pluck_damping_variations.append(pred_pluck_damping_variation)
         pred_string_tensions.append(pred_string_tension)
-        pred_pitches.append(np.exp2(pred_pitch))
+        pred_pitches.append(np.exp(pred_pitch))
         pred_log_pitches.append(pred_pitch)
         pred_smoothing_factors.append(pred_smoothing_factor)
         #print("gt_stringNumber: %.3f, gt_tab: %.3f" % (gt_stringNumber, gt_tab))
-        audio_buffer = sequencer.play_note(guitar, 0, 0, np.exp2(pred_pitch.astype(np.float64)), pred_smoothing_factor.astype(np.float64))
+        audio_buffer = sequencer.play_note(guitar, 0, 0, np.exp(pred_pitch.astype(np.float64)), pred_smoothing_factor.astype(np.float64))
         #audio_buffer = sequencer.play_note(guitar, 0, 0, pred_pitch, pred_smoothing_factor)
         cqt_spec = compute_cqt_spec(audio_buffer).T
         padded_cqt = pad_zeros(cqt_spec, (cqt_spec.shape[1], cqt_spec.shape[1]))      
@@ -645,5 +647,5 @@ if __name__ == '__main__':
     train_data, test_data, val_data, eval_data = load_data("_pitch_sf_sm")
     #train_data, test_data, val_data, eval_data = load_data_hdf5("pitch_sf_sm")
 
-    train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac_exp400", 5000, 500, 400)
-    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac_exp400", 500, 400)
+    #train_model(net, train_data, val_data, eval_data, 32, 100, "_pitch_sf_fac_log400", 5000, 500, 400)
+    test_pitch_sf(net, test_data, 32, "_pitch_sf_fac_log400", 500, 400)
