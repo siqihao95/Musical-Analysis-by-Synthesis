@@ -328,8 +328,7 @@ def evaluate(net, validation_loader, size, factor, fixed=False):
             outputs[:, 5] = outputs[:, 5] * 500 
             labels[:, 5] = labels[:, 5] * 500 
         #labels[:, 6] = np.log2(labels[:, 6]) * 100
-        labels[:, 6] = labels[:, 6] * 100
-        outputs[:, 6] = torch.Tensor(np.exp2(outputs[:, 6].detach().cpu().numpy()) * 100).to(device)
+        outputs[:, 6] = torch.Tensor(np.exp2(outputs[:, 6].detach().cpu().numpy())).to(device)
         #outputs[:, 6] = outputs[:, 6] * 100 
         outputs[:, 7] = outputs[:, 7] * factor     
         labels[:, 7] = labels[:, 7] * factor
@@ -395,9 +394,11 @@ def train_model(net, train_data, val_data, eval_data, batch_size, epochs, suffix
                 outputs[:, 5] = outputs[:, 5] * 500
                 labels[:, 5] = labels[:, 5] * 500 
             #labels[:, 6] = np.log2(labels[:, 6]) * 100
-            labels[:, 6] = labels[:, 6] * 100
             #outputs[:, 6] = outputs[:, 6] * 100
-            outputs[:, 6] = torch.Tensor(np.exp2(outputs[:, 6].detach().cpu().numpy()) * 100).to(device)
+            
+            outputs[:, 6] = torch.Tensor(np.exp2(outputs[:, 6].detach().cpu().numpy())).to(device)
+	    print(outputs[:, 6])
+            print(labels[:, 6])
             outputs[:, 7] = outputs[:, 7] * factor     
             labels[:, 7] = labels[:, 7] * factor
             #print(outputs[:, 0])
